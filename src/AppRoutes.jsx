@@ -5,6 +5,7 @@ import Profile from './pages/Profile'
 import Dashboard from './pages/Dashboard'
 import ProtectedRoute from './routes/ProtectedRoutes'
 import MisPostulaciones from './pages/MisPostulaciones'
+import AdminDashboard from './pages/AdminDashboard'
 
 export default function AppRoutes() {
   return (
@@ -19,6 +20,9 @@ export default function AppRoutes() {
       } />
       <Route path="/mis-postulaciones" element={
         <ProtectedRoute><MisPostulaciones /></ProtectedRoute>
+      } />
+      <Route path="/admin" element={
+        <ProtectedRoute><AdminDashboard /></ProtectedRoute>
       } />
     </Routes>
   )

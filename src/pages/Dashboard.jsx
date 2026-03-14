@@ -1,11 +1,20 @@
-import { useState, useEffect } from 'react'
+import { 
+    useState, 
+    useEffect 
+} from 'react'
 import { useAuth } from '../context/AuthContext'
 import {
-    getMyCompany, updateMyCompany,
-    getMyVacancies, createVacancy, deleteVacancy,
+    getMyCompany, 
+    updateMyCompany,
+    getMyVacancies, 
+    createVacancy, 
+    deleteVacancy,
     getApplicants
 } from '../services/company.service'
-import { API_URL, buildHeaders } from '../services/auth.service'
+import { 
+    API_URL, 
+    buildHeaders 
+} from '../services/auth.service'
 import './Dashboard.css'
 
 const TABS = ['Resumen', 'Vacantes', 'Postulantes', 'Mi Empresa']
@@ -30,10 +39,12 @@ export default function Dashboard() {
         salary_min: '', salary_max: '',
         modality: 'Presencial', work_schedule: 'Full-time', status: 'open',
     })
-    
+
     const [saving, setSaving] = useState(false)
     const [saved, setSaved] = useState(false)
     const [creating, setCreating] = useState(false)
+    const [aiRecs, setAiRecs] = useState([])
+    const [loadingAiRecs, setLoadingAiRecs] = useState(false)
 
     useEffect(() => { loadAll() }, [])
 
@@ -61,6 +72,24 @@ export default function Dashboard() {
         }
     }
 
+    const loadAiRecommendations = async (vacancyId) => {
+        setLoadingAiRecs(true)
+        setAiRecs([])
+        try {
+            const token = await getToken()
+            const res = await fetch(`${API_URL}/ai/recommend/candidates/${vacancyId}`, {
+                headers: buildHeaders(token)
+            })
+            if (!res.ok) throw new Error('Error')
+            const data = await res.json()
+            setAiRecs(data.recommendations || [])
+        } catch (err) {
+            console.error(err)
+        } finally {
+            setLoadingAiRecs(false)
+        }
+    }
+
     const loadApplicants = async (vacancy) => {
         setSelectedVacancy(vacancy)
         setTab('Postulantes')
@@ -68,6 +97,7 @@ export default function Dashboard() {
             const token = await getToken()
             const data = await getApplicants(vacancy.id, token)
             setApplicants(data || [])
+            loadAiRecommendations(vacancy.id)
         } catch { setApplicants([]) }
     }
 
@@ -128,14 +158,44 @@ export default function Dashboard() {
         }
     }
 
+    const handleViewCV = async (candidateProfileId) => {
+        try {
+            const token = await getToken()
+            const res = await fetch(`${API_URL}/file/download-cv/${candidateProfileId}`, {
+                headers: buildHeaders(token),
+                redirect: 'follow'
+            })
+            if (!res.ok) throw new Error('CV no encontrado')
+            const blob = await res.blob()
+            const url = window.URL.createObjectURL(blob)
+            window.open(url, '_blank')
+        } catch (err) {
+            console.error(err)
+            alert('No se pudo obtener el CV')
+        }
+    }
+
+    const handleToggleVacancyStatus = async (vacancy) => {
+        const newStatus = vacancy.status === 'open' ? 'closed' : 'open'
+        try {
+            const token = await getToken()
+            const res = await fetch(`${API_URL}/vacancy/status/${vacancy.id}`, {
+                method: 'PUT',
+                headers: { ...buildHeaders(token), 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus })
+            })
+            if (!res.ok) throw new Error('Error al actualizar')
+            setVacancies(prev => prev.map(v =>
+                v.id === vacancy.id ? { ...v, status: newStatus } : v
+            ))
+        } catch (err) {
+            console.error(err)
+        }
+    }
+
     const activeVacancies = vacancies.filter(v => v.status === 'open').length
     const totalApplicants = vacancies.reduce((acc, v) => acc + (v.applicants_count || 0), 0)
-    const statusMap = {
-  pending:    { label: 'En proceso', cls: 'dash-status--pending' },
-  'En Proceso': { label: 'En proceso', cls: 'dash-status--pending' },
-  accepted:   { label: 'Aceptado',   cls: 'dash-status--accepted' },
-  rejected:   { label: 'Rechazado',  cls: 'dash-status--rejected' },
-}
+
     if (loading) return <div className="route-loading"><div className="route-loading__spinner" /></div>
 
     return (
@@ -192,7 +252,13 @@ export default function Dashboard() {
                                         <span className="dash-vacancy-row__meta">{v.modality} · {v.work_schedule} · {v.location}</span>
                                     </div>
                                     <div className="dash-vacancy-row__actions">
-                                        <span className={`dash-status dash-status--${v.status}`}>{v.status}</span>
+                                        <button
+                                            className={`dash-status dash-status--${v.status} dash-status--clickable`}
+                                            onClick={() => handleToggleVacancyStatus(v)}
+                                            title="Click para cambiar estado"
+                                        >
+                                            {v.status === 'open' ? 'OPEN' : 'CLOSED'}
+                                        </button>
                                         <button className="dash-btn dash-btn--sm" onClick={() => loadApplicants(v)}>
                                             Ver postulantes
                                         </button>
@@ -291,7 +357,13 @@ export default function Dashboard() {
                                         </span>
                                     </div>
                                     <div className="dash-vacancy-row__actions">
-                                        <span className={`dash-status dash-status--${v.status}`}>{v.status}</span>
+                                        <button
+                                            className={`dash-status dash-status--${v.status} dash-status--clickable`}
+                                            onClick={() => handleToggleVacancyStatus(v)}
+                                            title="Click para cambiar estado"
+                                        >
+                                            {v.status === 'open' ? 'OPEN' : 'CLOSED'}
+                                        </button>
                                         <button className="dash-btn dash-btn--sm" onClick={() => loadApplicants(v)}>
                                             Postulantes
                                         </button>
@@ -315,7 +387,49 @@ export default function Dashboard() {
                                 Postulantes para: <em>{selectedVacancy.title}</em>
                             </h2>
                         )}
-                        {!selectedVacancy && <p className="dash-empty">Selecciona una vacante para ver sus postulantes.</p>}
+                        {!selectedVacancy && <p className="dash-empty">Selecciona una vacante para ver sus postulantes.</p>}´
+                        {aiRecs.length > 0 && (
+                            <div style={{ marginBottom: '32px' }}>
+                                <h3 style={{
+                                    fontFamily: 'Syne, sans-serif', fontWeight: 700,
+                                    fontSize: '1.1rem', marginBottom: '16px'
+                                }}>
+                                    ✨ Top candidatos recomendados por IA
+                                </h3>
+                                <div className="postulantes-ai-list">
+                                    {aiRecs.map((rec) => {
+                                        const candidate = applicants.find(a => a.apply_id === rec.apply_id)
+                                        if (!candidate) return null
+
+                                        return (
+                                            <div key={rec.apply_id} className="postulantes-ai-card">
+                                                <div className="postulantes-ai-avatar">
+                                                    {(candidate.first_name || 'U')[0].toUpperCase()}
+                                                </div>
+
+                                                <div className="postulantes-ai-info">
+                                                    <div className="postulantes-ai-header">
+                                                        <span className="postulantes-ai-name">
+                                                            {candidate.first_name} {candidate.last_name}
+                                                        </span>
+                                                        <span className="postulantes-ai-badge">
+                                                            {rec.score}% match
+                                                        </span>
+                                                    </div>
+                                                    <p className="postulantes-ai-reason">{rec.reason}</p>
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
+                        {loadingAiRecs && (
+                            <div style={{ marginBottom: '24px', color: '#3DBFB8', fontSize: '0.9rem' }}>
+                                ✨ Analizando candidatos con IA...
+                            </div>
+                        )}
                         <div className="dash-applicant-list">
                             {applicants.map(a => (
                                 <div key={a.apply_id} className="dash-applicant-card">
@@ -345,12 +459,14 @@ export default function Dashboard() {
                                             return <span className={`dash-status ${s.cls}`}>{s.label}</span>
                                         })()}
 
-                                        {a.resume_url && (
-                                            <a href={a.resume_url} target="_blank" rel="noreferrer" className="dash-btn dash-btn--sm">
+                                        {a.candidate_profile_id && (
+                                            <button
+                                                className="dash-btn dash-btn--sm"
+                                                onClick={() => handleViewCV(a.candidate_profile_id)}
+                                            >
                                                 CV
-                                            </a>
+                                            </button>
                                         )}
-
                                         {(!a.status || a.status === 'pending') && (
                                             <>
                                                 <button className="dash-btn dash-btn--accept" onClick={() => handleApplyStatus(a.apply_id, 'accepted')}>

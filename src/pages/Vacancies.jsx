@@ -1,8 +1,19 @@
-import { useState, useEffect } from 'react'
+import { 
+  useState, 
+  useEffect 
+} from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { getVacancies, applyToVacancy } from '../services/vacancy.service'
-import { API_URL, buildHeaders } from '../services/auth.service'
+import { 
+  getVacancies, 
+  applyToVacancy 
+} from '../services/vacancy.service'
+import { 
+  API_URL, 
+  buildHeaders 
+} from '../services/auth.service'
+import { useAuth0 } from '@auth0/auth0-react'
+import { getRecommendedVacancies } from '../services/groq.service.js'
 import './Vacancies.css'
 
 function VacancyCard({ vacancy, applied, onVerDetalles }) {
@@ -48,7 +59,6 @@ function VacancyCard({ vacancy, applied, onVerDetalles }) {
 export default function Vacancies() {
   const navigate = useNavigate()
   const { getToken, isAuthenticated, role } = useAuth()
-
   const [vacancies, setVacancies] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -61,10 +71,19 @@ export default function Vacancies() {
   const [applySuccess, setApplySuccess] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [candidateProfile, setCandidateProfile] = useState(null)
+  const [recommendations, setRecommendations] = useState([])
+  const [loadingRecs, setLoadingRecs] = useState(false)
+  const { getAccessTokenSilently } = useAuth0()
 
   useEffect(() => {
     loadVacancies()
   }, [])
+
+  useEffect(() => {
+    if (isAuthenticated && role === 'candidate') {
+      loadRecommendations()
+    }
+  }, [isAuthenticated, role])
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -118,6 +137,19 @@ export default function Vacancies() {
     setShowConfirm(false)
   }
 
+  const loadRecommendations = async () => {
+    setLoadingRecs(true)
+    try {
+      const token = await getAccessTokenSilently()
+      const data = await getRecommendedVacancies(token)
+      setRecommendations(data.recommendations || [])
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoadingRecs(false)
+    }
+  }
+
   const filteredVacancies = vacancies.filter(v => {
     const matchSearch = !search ||
       v.title?.toLowerCase().includes(search.toLowerCase()) ||
@@ -130,7 +162,49 @@ export default function Vacancies() {
 
   return (
     <main className="vacancies-page">
-
+      {isAuthenticated && role === 'candidate' && (
+        <div className="recommendations-section">
+          <h2 className="recommendations__title">
+            ✨ Recomendadas para ti
+          </h2>
+          {loadingRecs ? (
+            <div style={{ display: 'flex', gap: '12px' }}>
+              {[1, 2, 3].map(i => (
+                <div key={i} style={{
+                  background: '#fff', borderRadius: '16px', padding: '24px',
+                  width: '280px', height: '140px', opacity: 0.5,
+                  animation: 'pulse 1.5s infinite'
+                }} />
+              ))}
+            </div>
+          ) : recommendations.length > 0 ? (
+            <div className="recommendations__list">
+              {recommendations.map((rec) => {
+                const vacancy = vacancies.find(v => v.id === rec.vacancy_id)
+                if (!vacancy) return null
+                return (
+                  <div
+                    key={rec.vacancy_id}
+                    className="recommendation-card"
+                    onClick={() => setSelectedVacancy(vacancy)}
+                  >
+                    <div className="recommendation-card__score">
+                      {rec.score}% match
+                    </div>
+                    <h3 className="recommendation-card__title">{vacancy.title}</h3>
+                    <p className="recommendation-card__company">{vacancy.company_name}</p>
+                    <p className="recommendation-card__reason">{rec.reason}</p>
+                    <div style={{ display: 'flex', gap: '6px', marginTop: '8px', flexWrap: 'wrap' }}>
+                      {vacancy.modality && <span className="tag tag--modality">{vacancy.modality}</span>}
+                      {vacancy.work_schedule && <span className="tag tag--schedule">{vacancy.work_schedule}</span>}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          ) : null}
+        </div>
+      )}
       {/* Modal de detalles */}
       {selectedVacancy && (
         <div className="modal-overlay" onClick={handleCloseModal}>

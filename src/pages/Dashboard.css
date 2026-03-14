@@ -256,3 +256,87 @@
 .dash-status--rejected { background: #fce4ec; color: #e11d48; border-radius: 20px; padding: 4px 14px; font-size: 0.8rem; font-weight: 600; }
 .dash-btn--accept { background: #e8f5e9; color: #16a34a; border: none; border-radius: 8px; padding: 6px 14px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
 .dash-btn--reject { background: #fce4ec; color: #e11d48; border: none; border-radius: 8px; padding: 6px 14px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+
+.postulantes-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+}
+
+.postulantes-ai-section {
+  margin-bottom: 32px;
+}
+
+.postulantes-ai-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.postulantes-ai-card {
+  background: linear-gradient(135deg, #f0fafa, #fff);
+  border: 2px solid #3DBFB8;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.postulantes-ai-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #3DBFB8;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.postulantes-ai-info {
+  flex: 1;
+}
+
+.postulantes-ai-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.postulantes-ai-name {
+  font-weight: 700;
+}
+
+.postulantes-ai-badge {
+  background: #3DBFB8;
+  color: #fff;
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.postulantes-ai-reason {
+  color: #555;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.dash-status--clickable {
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.2s;
+  font-family: inherit;
+}
+.dash-status--clickable:hover {
+  opacity: 0.75;
+}
+.dash-status--open   { background: #e8f5e9; color: #16a34a; border-radius: 20px; padding: 4px 14px; font-size: 0.8rem; font-weight: 600; }
+.dash-status--closed { background: #f5f5f5; color: #999; border-radius: 20px; padding: 4px 14px; font-size: 0.8rem; font-weight: 600; }

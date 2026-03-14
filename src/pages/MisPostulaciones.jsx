@@ -1,6 +1,12 @@
-import { useState, useEffect } from 'react'
+import { 
+  useState, 
+  useEffect 
+} from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
-import { API_URL, buildHeaders } from '../services/auth.service'
+import { 
+  API_URL, 
+  buildHeaders 
+} from '../services/auth.service'
 import './MisPostulaciones.css'
 
 export default function MisPostulaciones() {

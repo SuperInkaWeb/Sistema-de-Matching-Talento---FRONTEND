@@ -17,8 +17,6 @@ export default function Navbar() {
 
   useEffect(() => { setMenuOpen(false) }, [location.pathname])
 
-  const isCompany = role === 'company' || role === 'admin'
-
   return (
     <header className={`navbar ${scrolled ? 'navbar--scrolled' : ''}`}>
       <div className="navbar__inner">
@@ -30,17 +28,22 @@ export default function Navbar() {
           <Link to="/" className={`navbar__link ${location.pathname === '/' ? 'navbar__link--active' : ''}`}>
             Vacantes
           </Link>
-          {user && role === 'candidate' && (
-            <Link to="/mis-postulaciones" className={`navbar__link ${location.pathname === '/mis-postulaciones' ? 'navbar__link--active' : ''}`}>
-              Mis Postulaciones
+          {user && role === 'admin' && (
+            <Link to="/admin" className={`navbar__link ${location.pathname === '/admin' ? 'navbar__link--active' : ''}`}>
+              Admin Panel
             </Link>
           )}
           {user && role === 'candidate' && (
-            <Link to="/profile" className={`navbar__link ${location.pathname === '/profile' ? 'navbar__link--active' : ''}`}>
-              Mi Perfil
-            </Link>
+            <>
+              <Link to="/mis-postulaciones" className={`navbar__link ${location.pathname === '/mis-postulaciones' ? 'navbar__link--active' : ''}`}>
+                Mis Postulaciones
+              </Link>
+              <Link to="/profile" className={`navbar__link ${location.pathname === '/profile' ? 'navbar__link--active' : ''}`}>
+                Mi Perfil
+              </Link>
+            </>
           )}
-          {user && isCompany && (
+          {user && role === 'company' && (
             <Link to="/dashboard" className={`navbar__link ${location.pathname === '/dashboard' ? 'navbar__link--active' : ''}`}>
               Dashboard
             </Link>

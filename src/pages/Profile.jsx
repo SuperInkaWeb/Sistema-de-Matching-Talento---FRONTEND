@@ -1,8 +1,19 @@
-import { useState, useEffect, useRef } from 'react'
+import {
+  useState,
+  useEffect,
+  useRef
+} from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
-import { API_URL, buildHeaders } from '../services/auth.service'
+import {
+  API_URL,
+  buildHeaders
+} from '../services/auth.service'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import {
+  submitCompanyRequest,
+  getMyRequest
+} from '../services/admin.services.js'
 import './Profile.css'
 
 export default function Profile() {
@@ -25,10 +36,21 @@ export default function Profile() {
   const [uploadingResume, setUploadingResume] = useState(false)
   const [resumeUploaded, setResumeUploaded] = useState(false)
   const [cvUrl, setCvUrl] = useState(null)
+  const [showRequestForm, setShowRequestForm] = useState(false)
+  const [myRequest, setMyRequest] = useState(null)
+  const [requestForm, setRequestForm] = useState({
+    company_name: '', description: '', industry: '',
+    website_url: '', city: '', country: ''
+  })
+  const [submitting, setSubmitting] = useState(false)
+  const [requestSent, setRequestSent] = useState(false)
+
 
   useEffect(() => {
-    if (role === 'company' || role === 'admin') {
+    if (role === 'company') {
       navigate('/dashboard', { replace: true })
+    } else if (role === 'admin') {
+      navigate('/admin', { replace: true })
     }
   }, [role])
 
@@ -39,27 +61,44 @@ export default function Profile() {
       const token = await getAccessTokenSilently()
 
       const res = await fetch(`${API_URL}/candidate/me`, { headers: buildHeaders(token) })
-      if (res.ok) {
-        const data = await res.json()
-        setProfile(data)
-        setForm({
-          first_name:       data.profile?.first_name       || '',
-          last_name:        data.profile?.last_name        || '',
-          phone:            data.profile?.phone            || '',
-          city:             data.profile?.city             || '',
-          country:          data.profile?.country          || '',
-          linkedin_url:     data.profile?.linkedin_url     || '',
-          portfolio_url:    data.profile?.portfolio_url    || '',
-          resume_url:       data.profile?.resume_url       || '',
-          skills:           data.profile?.skills           || '',
-          experience_years: data.profile?.experience_years || 0,
-        })
+      if (!res.ok) {
+        setLoadingProfile(false)
+        return
       }
 
-      const cvRes = await fetch(`${API_URL}/file/candidate/my-cv`, { headers: buildHeaders(token) })
-      if (cvRes.ok) {
-        const cvData = await cvRes.json()
-        setCvUrl(cvData.signedUrl)
+      const data = await res.json()
+      const userRole = data.user?.role
+
+      setProfile(data)
+      setForm({
+        first_name: data.profile?.first_name || '',
+        last_name: data.profile?.last_name || '',
+        phone: data.profile?.phone || '',
+        city: data.profile?.city || '',
+        country: data.profile?.country || '',
+        linkedin_url: data.profile?.linkedin_url || '',
+        portfolio_url: data.profile?.portfolio_url || '',
+        resume_url: data.profile?.resume_url || '',
+        skills: data.profile?.skills || '',
+        experience_years: data.profile?.experience_years || 0,
+      })
+
+      if (userRole === 'candidate') {
+        try {
+          const reqRes = await fetch(`${API_URL}/admin/request/me`, { headers: buildHeaders(token) })
+          if (reqRes.ok) {
+            const reqData = await reqRes.json()
+            setMyRequest(reqData)
+          }
+        } catch { }
+
+        try {
+          const cvRes = await fetch(`${API_URL}/file/candidate/my-cv`, { headers: buildHeaders(token) })
+          if (cvRes.ok) {
+            const cvData = await cvRes.json()
+            setCvUrl(cvData.signedUrl)
+          }
+        } catch { }
       }
     } catch (err) {
       console.error(err)
@@ -125,10 +164,25 @@ export default function Profile() {
     }
   }
 
+  const handleSubmitRequest = async (e) => {
+    e.preventDefault()
+    setSubmitting(true)
+    try {
+      const token = await getAccessTokenSilently()
+      const result = await submitCompanyRequest(requestForm, token)
+      setMyRequest(result)
+      setRequestSent(true)
+      setShowRequestForm(false)
+    } catch (err) {
+      alert(err.message)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   const displayName = form.first_name
     ? `${form.first_name} ${form.last_name}`.trim()
     : auth0User?.name || auth0User?.email || 'Usuario'
-
   if (loadingProfile) {
     return <div className="route-loading"><div className="route-loading__spinner" /></div>
   }
@@ -153,6 +207,99 @@ export default function Profile() {
               </span>
             )}
 
+            {profile?.user?.role === 'candidate' && (
+              <div className="profile-company-request">
+                {myRequest?.status === 'pending' && (
+                  <div className="request-badge request-badge--pending">
+                    ⏳ Solicitud pendiente
+                  </div>
+                )}
+                {myRequest?.status === 'accepted' && (
+                  <div className="request-badge request-badge--accepted">
+                    ✓ Solicitud aceptada
+                  </div>
+                )}
+                {myRequest?.status === 'rejected' && (
+                  <div className="request-badge request-badge--rejected">
+                    ✕ Solicitud rechazada
+                  </div>
+                )}
+                {(!myRequest || myRequest.status === 'rejected') && !showRequestForm && (
+                  <button
+                    className="profile-resume__btn"
+                    onClick={() => setShowRequestForm(true)}
+                    style={{ marginTop: '12px' }}
+                  >
+                    🏢 Solicitar cuenta empresa
+                  </button>
+                )}
+
+                {showRequestForm && (
+                  <form onSubmit={handleSubmitRequest} style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <input
+                      className="form-input"
+                      placeholder="Nombre de la empresa *"
+                      required
+                      value={requestForm.company_name}
+                      onChange={e => setRequestForm(p => ({ ...p, company_name: e.target.value }))}
+                    />
+                    <input
+                      className="form-input"
+                      placeholder="Industria"
+                      value={requestForm.industry}
+                      onChange={e => setRequestForm(p => ({ ...p, industry: e.target.value }))}
+                    />
+                    <textarea
+                      className="form-input"
+                      placeholder="Descripción de la empresa"
+                      rows={3}
+                      value={requestForm.description}
+                      onChange={e => setRequestForm(p => ({ ...p, description: e.target.value }))}
+                      style={{ resize: 'vertical' }}
+                    />
+                    <input
+                      className="form-input"
+                      placeholder="Sitio web"
+                      type="url"
+                      value={requestForm.website_url}
+                      onChange={e => setRequestForm(p => ({ ...p, website_url: e.target.value }))}
+                    />
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input
+                        className="form-input"
+                        placeholder="Ciudad"
+                        value={requestForm.city}
+                        onChange={e => setRequestForm(p => ({ ...p, city: e.target.value }))}
+                      />
+                      <input
+                        className="form-input"
+                        placeholder="País"
+                        value={requestForm.country}
+                        onChange={e => setRequestForm(p => ({ ...p, country: e.target.value }))}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        type="button"
+                        className="profile-resume__btn"
+                        onClick={() => setShowRequestForm(false)}
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="submit"
+                        className="form-save-btn"
+                        disabled={submitting}
+                        style={{ flex: 1 }}
+                      >
+                        {submitting ? 'Enviando...' : 'Enviar solicitud'}
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
+            )}
+
             <div className="profile-resume">
               <p className="profile-resume__label">CV / Portafolio</p>
 
@@ -165,13 +312,13 @@ export default function Profile() {
                   ? <><span className="loading-spinner" /> Subiendo...</>
                   : resumeUploaded || cvUrl
                     ? <>✓ Reemplazar CV</>
-                    : <><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1v9M4 5l4-4 4 4M2 12v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg> Subir CV (PDF)</>
+                    : <><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1v9M4 5l4-4 4 4M2 12v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg> Subir CV (PDF)</>
                 }
               </button>
 
               {cvUrl && (
                 <a href={cvUrl} target="_blank" rel="noreferrer" className="profile-resume__btn" style={{ marginTop: '8px', textDecoration: 'none', justifyContent: 'center', display: 'flex' }}>
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 10v4h12v-4M8 1v9M5 7l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 10v4h12v-4M8 1v9M5 7l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
                   Ver mi CV
                 </a>
               )}
@@ -239,8 +386,8 @@ export default function Profile() {
               {error && (
                 <div className="form-error">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
-                    <path d="M8 4.5v4M8 10.5v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
+                    <path d="M8 4.5v4M8 10.5v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                   </svg>
                   {error}
                 </div>
@@ -251,7 +398,7 @@ export default function Profile() {
                   {saving
                     ? <><span className="loading-spinner" /> Guardando...</>
                     : saved
-                      ? <><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8L6 12L14 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg> ¡Guardado!</>
+                      ? <><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8L6 12L14 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg> ¡Guardado!</>
                       : 'Guardar cambios'
                   }
                 </button>
