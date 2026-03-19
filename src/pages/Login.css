@@ -152,3 +152,25 @@
   .login-badge { display: none; }
   .login-card__providers { grid-template-columns: 1fr; }
 }
+
+.login-empresa-link {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.login-empresa-link__btn {
+  color: #3DBFB8;
+  cursor: pointer;
+  font-weight: 600;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0;
+}
+
+.login-empresa-link__btn:hover {
+  text-decoration: underline;
+}

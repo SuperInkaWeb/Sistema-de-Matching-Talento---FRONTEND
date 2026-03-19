@@ -1,64 +1,18 @@
-import { 
-  useState, 
-  useEffect 
-} from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { 
-  getVacancies, 
-  applyToVacancy 
-} from '../services/vacancy.service'
-import { 
-  API_URL, 
-  buildHeaders 
-} from '../services/auth.service'
 import { useAuth0 } from '@auth0/auth0-react'
+import { getVacancies, applyToVacancy } from '../services/vacancy.service.js'
+import { API_URL, buildHeaders } from '../services/auth.service.js'
 import { getRecommendedVacancies } from '../services/groq.service.js'
+import VacancyCard from '../components/VacancyCard'
+import VacancyModal from '../components/VacancyModal'
+import VacancyRecommendations from '../components/VacancyRecommendations'
 import './Vacancies.css'
 
-function VacancyCard({ vacancy, applied, onVerDetalles }) {
-  const formatDate = (dateStr) => {
-    if (!dateStr) return ''
-    return new Date(dateStr).toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' })
-  }
-
-  return (
-    <div className="vacancy-card">
-      <div className="vacancy-card__header">
-        <div className="vacancy-card__company-logo">
-          {vacancy.company_name?.[0] || 'E'}
-        </div>
-        <div className="vacancy-card__meta">
-          <p className="vacancy-card__company">{vacancy.company_name || 'Empresa'}</p>
-          <p className="vacancy-card__date">{formatDate(vacancy.created_at)}</p>
-        </div>
-      </div>
-
-      <h3 className="vacancy-card__title">{vacancy.title}</h3>
-
-      <div className="vacancy-card__tags">
-        {vacancy.modality && <span className="vacancy-tag">{vacancy.modality}</span>}
-        {vacancy.work_schedule && <span className="vacancy-tag">{vacancy.work_schedule}</span>}
-        {vacancy.location && <span className="vacancy-tag vacancy-tag--location">📍 {vacancy.location}</span>}
-      </div>
-
-      <p className="vacancy-card__desc vacancy-card__desc--clamp">{vacancy.description}</p>
-
-      <div className="vacancy-card__footer">
-        <button
-          className={`vacancy-card__apply-btn ${applied ? 'vacancy-card__apply-btn--applied' : ''}`}
-          onClick={() => onVerDetalles(vacancy)}
-        >
-          {applied ? '✓ Ya postulado' : 'Ver detalles'}
-        </button>
-      </div>
-    </div>
-  )
-}
-
 export default function Vacancies() {
-  const navigate = useNavigate()
   const { getToken, isAuthenticated, role } = useAuth()
+  const { getAccessTokenSilently } = useAuth0()
+
   const [vacancies, setVacancies] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -73,31 +27,14 @@ export default function Vacancies() {
   const [candidateProfile, setCandidateProfile] = useState(null)
   const [recommendations, setRecommendations] = useState([])
   const [loadingRecs, setLoadingRecs] = useState(false)
-  const { getAccessTokenSilently } = useAuth0()
 
-  useEffect(() => {
-    loadVacancies()
-  }, [])
+  useEffect(() => { loadVacancies() }, [])
 
   useEffect(() => {
     if (isAuthenticated && role === 'candidate') {
       loadRecommendations()
+      loadProfile()
     }
-  }, [isAuthenticated, role])
-
-  useEffect(() => {
-    const loadProfile = async () => {
-      if (!isAuthenticated || role !== 'candidate') return
-      try {
-        const token = await getToken()
-        const res = await fetch(`${API_URL}/candidate/me`, { headers: buildHeaders(token) })
-        if (res.ok) {
-          const data = await res.json()
-          setCandidateProfile(data.profile)
-        }
-      } catch { }
-    }
-    loadProfile()
   }, [isAuthenticated, role])
 
   const loadVacancies = async () => {
@@ -111,6 +48,30 @@ export default function Vacancies() {
       setError('No se pudieron cargar las vacantes.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadProfile = async () => {
+    try {
+      const token = await getToken()
+      const res = await fetch(`${API_URL}/candidate/me`, { headers: buildHeaders(token) })
+      if (res.ok) {
+        const data = await res.json()
+        setCandidateProfile(data.profile)
+      }
+    } catch {}
+  }
+
+  const loadRecommendations = async () => {
+    setLoadingRecs(true)
+    try {
+      const token = await getAccessTokenSilently()
+      const data = await getRecommendedVacancies(token)
+      setRecommendations(data.recommendations || [])
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoadingRecs(false)
     }
   }
 
@@ -137,19 +98,6 @@ export default function Vacancies() {
     setShowConfirm(false)
   }
 
-  const loadRecommendations = async () => {
-    setLoadingRecs(true)
-    try {
-      const token = await getAccessTokenSilently()
-      const data = await getRecommendedVacancies(token)
-      setRecommendations(data.recommendations || [])
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoadingRecs(false)
-    }
-  }
-
   const filteredVacancies = vacancies.filter(v => {
     const matchSearch = !search ||
       v.title?.toLowerCase().includes(search.toLowerCase()) ||
@@ -162,136 +110,23 @@ export default function Vacancies() {
 
   return (
     <main className="vacancies-page">
-      {isAuthenticated && role === 'candidate' && (
-        <div className="recommendations-section">
-          <h2 className="recommendations__title">
-            ✨ Recomendadas para ti
-          </h2>
-          {loadingRecs ? (
-            <div style={{ display: 'flex', gap: '12px' }}>
-              {[1, 2, 3].map(i => (
-                <div key={i} style={{
-                  background: '#fff', borderRadius: '16px', padding: '24px',
-                  width: '280px', height: '140px', opacity: 0.5,
-                  animation: 'pulse 1.5s infinite'
-                }} />
-              ))}
-            </div>
-          ) : recommendations.length > 0 ? (
-            <div className="recommendations__list">
-              {recommendations.map((rec) => {
-                const vacancy = vacancies.find(v => v.id === rec.vacancy_id)
-                if (!vacancy) return null
-                return (
-                  <div
-                    key={rec.vacancy_id}
-                    className="recommendation-card"
-                    onClick={() => setSelectedVacancy(vacancy)}
-                  >
-                    <div className="recommendation-card__score">
-                      {rec.score}% match
-                    </div>
-                    <h3 className="recommendation-card__title">{vacancy.title}</h3>
-                    <p className="recommendation-card__company">{vacancy.company_name}</p>
-                    <p className="recommendation-card__reason">{rec.reason}</p>
-                    <div style={{ display: 'flex', gap: '6px', marginTop: '8px', flexWrap: 'wrap' }}>
-                      {vacancy.modality && <span className="tag tag--modality">{vacancy.modality}</span>}
-                      {vacancy.work_schedule && <span className="tag tag--schedule">{vacancy.work_schedule}</span>}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          ) : null}
-        </div>
-      )}
-      {/* Modal de detalles */}
+
       {selectedVacancy && (
-        <div className="modal-overlay" onClick={handleCloseModal}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-
-            <div className="modal__header">
-              <div>
-                <h2 className="modal__title">{selectedVacancy.title}</h2>
-                <p className="modal__subtitle">
-                  {selectedVacancy.company_name}
-                  {selectedVacancy.location && ` · ${selectedVacancy.location}`}
-                </p>
-              </div>
-              <button className="modal__close" onClick={handleCloseModal}>✕</button>
-            </div>
-
-            <div className="vacancy-card__tags" style={{ marginBottom: '24px' }}>
-              {selectedVacancy.modality && <span className="vacancy-tag">{selectedVacancy.modality}</span>}
-              {selectedVacancy.work_schedule && <span className="vacancy-tag">{selectedVacancy.work_schedule}</span>}
-            </div>
-
-            {(selectedVacancy.salary_min || selectedVacancy.salary_max) && (
-              <div className="modal__salary">
-                <p className="modal__salary-label">Salario</p>
-                <p className="modal__salary-value">
-                  {selectedVacancy.salary_min && `S/ ${selectedVacancy.salary_min}`}
-                  {selectedVacancy.salary_min && selectedVacancy.salary_max && ' — '}
-                  {selectedVacancy.salary_max && `S/ ${selectedVacancy.salary_max}`}
-                </p>
-              </div>
-            )}
-
-            <div className="modal__description">
-              <h3 className="modal__description-title">Descripción</h3>
-              <p>{selectedVacancy.description}</p>
-            </div>
-
-            {applySuccess && (
-              <div className="modal__success">
-                ✓ ¡Postulación enviada con éxito!
-              </div>
-            )}
-
-            {!isAuthenticated ? (
-              <button className="vacancy-card__apply-btn" style={{ width: '100%' }} onClick={() => navigate('/login')}>
-                Inicia sesión para postularte
-              </button>
-            ) : role === 'candidate' && !showConfirm ? (
-              <button
-                className={`vacancy-card__apply-btn ${applied[selectedVacancy.id] ? 'vacancy-card__apply-btn--applied' : ''}`}
-                style={{ width: '100%' }}
-                onClick={() => !applied[selectedVacancy.id] && setShowConfirm(true)}
-                disabled={applied[selectedVacancy.id]}
-              >
-                {applied[selectedVacancy.id] ? '✓ Ya postulado' : 'Postularme'}
-              </button>
-            ) : role === 'candidate' && showConfirm ? (
-              <div className="modal__confirm">
-                <h4 className="modal__confirm-title">Confirmar postulación</h4>
-                <p><strong>Nombre:</strong> {candidateProfile?.first_name} {candidateProfile?.last_name}</p>
-                <p><strong>Ciudad:</strong> {candidateProfile?.city}, {candidateProfile?.country}</p>
-                <p><strong>Experiencia:</strong> {candidateProfile?.experience_years} años</p>
-                {candidateProfile?.linkedin_url && (
-                  <p><strong>LinkedIn:</strong> {candidateProfile.linkedin_url}</p>
-                )}
-                <p className="modal__confirm-note">Se enviará tu perfil actual al empleador.</p>
-                <div className="modal__confirm-actions">
-                  <button className="btn-retry" onClick={() => setShowConfirm(false)}>
-                    Cancelar
-                  </button>
-                  <button
-                    className="vacancy-card__apply-btn"
-                    onClick={() => handleApply(selectedVacancy.id)}
-                    disabled={applying}
-                    style={{ flex: 2 }}
-                  >
-                    {applying ? 'Enviando...' : 'Confirmar postulación'}
-                  </button>
-                </div>
-              </div>
-            ) : null}
-
-          </div>
-        </div>
+        <VacancyModal
+          vacancy={selectedVacancy}
+          onClose={handleCloseModal}
+          onApply={handleApply}
+          applied={!!applied[selectedVacancy.id]}
+          applying={applying}
+          applySuccess={applySuccess}
+          showConfirm={showConfirm}
+          setShowConfirm={setShowConfirm}
+          candidateProfile={candidateProfile}
+          isAuthenticated={isAuthenticated}
+          role={role}
+        />
       )}
 
-      {/* Hero */}
       <section className="vacancies-hero">
         <div className="container">
           <div className="vacancies-hero__content animate-fade-up">
@@ -308,7 +143,6 @@ export default function Vacancies() {
             </p>
           </div>
 
-          {/* Search */}
           <div className="vacancies-search animate-fade-up" style={{ animationDelay: '0.1s' }}>
             <div className="vacancies-search__input-wrap">
               <svg className="vacancies-search__icon" width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -326,26 +160,19 @@ export default function Vacancies() {
                 <button className="vacancies-search__clear" onClick={() => setSearch('')}>×</button>
               )}
             </div>
-
             <div className="vacancies-search__filters">
               <div className="filter-group">
                 {['all', 'Remoto', 'Híbrido', 'Presencial'].map(f => (
-                  <button
-                    key={f}
-                    className={`filter-btn ${filterModality === f ? 'filter-btn--active' : ''}`}
-                    onClick={() => setFilterModality(f)}
-                  >
+                  <button key={f} className={`filter-btn ${filterModality === f ? 'filter-btn--active' : ''}`}
+                    onClick={() => setFilterModality(f)}>
                     {f === 'all' ? 'Todas' : f}
                   </button>
                 ))}
               </div>
               <div className="filter-group">
                 {['all', 'Full-time', 'Part-time'].map(f => (
-                  <button
-                    key={f}
-                    className={`filter-btn ${filterSchedule === f ? 'filter-btn--active' : ''}`}
-                    onClick={() => setFilterSchedule(f)}
-                  >
+                  <button key={f} className={`filter-btn ${filterSchedule === f ? 'filter-btn--active' : ''}`}
+                    onClick={() => setFilterSchedule(f)}>
                     {f === 'all' ? 'Cualquier jornada' : f}
                   </button>
                 ))}
@@ -355,9 +182,18 @@ export default function Vacancies() {
         </div>
       </section>
 
-      {/* Results */}
       <section className="vacancies-results">
         <div className="container">
+
+          {isAuthenticated && role === 'candidate' && (
+            <VacancyRecommendations
+              recommendations={recommendations}
+              vacancies={vacancies}
+              loading={loadingRecs}
+              onSelect={setSelectedVacancy}
+            />
+          )}
+
           <div className="vacancies-results__header">
             <span className="vacancies-count">
               {loading ? '—' : filteredVacancies.length} vacante{filteredVacancies.length !== 1 ? 's' : ''}
@@ -402,11 +238,7 @@ export default function Vacancies() {
           {!loading && !error && (
             <div className="vacancies-grid">
               {filteredVacancies.map((vacancy, i) => (
-                <div
-                  key={vacancy.id}
-                  className="animate-fade-up"
-                  style={{ animationDelay: `${Math.min(i * 0.05, 0.3)}s` }}
-                >
+                <div key={vacancy.id} className="animate-fade-up" style={{ animationDelay: `${Math.min(i * 0.05, 0.3)}s` }}>
                   <VacancyCard
                     vacancy={vacancy}
                     applied={!!applied[vacancy.id]}

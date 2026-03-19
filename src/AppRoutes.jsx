@@ -6,6 +6,8 @@ import Dashboard from './pages/Dashboard'
 import ProtectedRoute from './routes/ProtectedRoutes'
 import MisPostulaciones from './pages/MisPostulaciones'
 import AdminDashboard from './pages/AdminDashboard'
+import RegistrarEmpresa from './pages/RegistrarEmpresa'
+import Registro from './pages/Registro'
 
 export default function AppRoutes() {
   return (
@@ -23,6 +25,12 @@ export default function AppRoutes() {
       } />
       <Route path="/admin" element={
         <ProtectedRoute><AdminDashboard /></ProtectedRoute>
+      } />
+      <Route path="/registro-empresa" element={
+        <RegistrarEmpresa />
+      } />
+      <Route path="/registro" element={
+        <Registro />
       } />
     </Routes>
   )

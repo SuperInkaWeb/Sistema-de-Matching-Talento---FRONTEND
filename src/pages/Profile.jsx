@@ -1,19 +1,9 @@
-import {
-  useState,
-  useEffect,
-  useRef
-} from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
-import {
-  API_URL,
-  buildHeaders
-} from '../services/auth.service'
+import { API_URL, buildHeaders } from '../services/auth.service'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import {
-  submitCompanyRequest,
-  getMyRequest
-} from '../services/admin.services.js'
+import InviteModal from '../components/InviteModal'
 import './Profile.css'
 
 export default function Profile() {
@@ -21,13 +11,12 @@ export default function Profile() {
   const { role } = useAuth()
   const navigate = useNavigate()
   const fileRef = useRef()
-
   const [profile, setProfile] = useState(null)
   const [form, setForm] = useState({
     first_name: '', last_name: '', phone: '',
     city: '', country: '', linkedin_url: '',
     portfolio_url: '', resume_url: '', skills: '',
-    experience_years: 0,
+    experience_years: 0, languages: '', address: '',
   })
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -36,22 +25,11 @@ export default function Profile() {
   const [uploadingResume, setUploadingResume] = useState(false)
   const [resumeUploaded, setResumeUploaded] = useState(false)
   const [cvUrl, setCvUrl] = useState(null)
-  const [showRequestForm, setShowRequestForm] = useState(false)
-  const [myRequest, setMyRequest] = useState(null)
-  const [requestForm, setRequestForm] = useState({
-    company_name: '', description: '', industry: '',
-    website_url: '', city: '', country: ''
-  })
-  const [submitting, setSubmitting] = useState(false)
-  const [requestSent, setRequestSent] = useState(false)
-
+  const [showInviteModal, setShowInviteModal] = useState(false)
 
   useEffect(() => {
-    if (role === 'company') {
-      navigate('/dashboard', { replace: true })
-    } else if (role === 'admin') {
-      navigate('/admin', { replace: true })
-    }
+    if (role === 'company') navigate('/dashboard', { replace: true })
+    else if (role === 'admin') navigate('/admin', { replace: true })
   }, [role])
 
   useEffect(() => { fetchProfile() }, [])
@@ -59,16 +37,10 @@ export default function Profile() {
   const fetchProfile = async () => {
     try {
       const token = await getAccessTokenSilently()
-
       const res = await fetch(`${API_URL}/candidate/me`, { headers: buildHeaders(token) })
-      if (!res.ok) {
-        setLoadingProfile(false)
-        return
-      }
+      if (!res.ok) return
 
       const data = await res.json()
-      const userRole = data.user?.role
-
       setProfile(data)
       setForm({
         first_name: data.profile?.first_name || '',
@@ -81,25 +53,17 @@ export default function Profile() {
         resume_url: data.profile?.resume_url || '',
         skills: data.profile?.skills || '',
         experience_years: data.profile?.experience_years || 0,
+        languages: data.profile?.languages || '',
+        address: data.profile?.address || '',
       })
 
-      if (userRole === 'candidate') {
-        try {
-          const reqRes = await fetch(`${API_URL}/admin/request/me`, { headers: buildHeaders(token) })
-          if (reqRes.ok) {
-            const reqData = await reqRes.json()
-            setMyRequest(reqData)
-          }
-        } catch { }
-
-        try {
-          const cvRes = await fetch(`${API_URL}/file/candidate/my-cv`, { headers: buildHeaders(token) })
-          if (cvRes.ok) {
-            const cvData = await cvRes.json()
-            setCvUrl(cvData.signedUrl)
-          }
-        } catch { }
-      }
+      try {
+        const cvRes = await fetch(`${API_URL}/file/candidate/my-cv`, { headers: buildHeaders(token) })
+        if (cvRes.ok) {
+          const cvData = await cvRes.json()
+          setCvUrl(cvData.signedUrl)
+        }
+      } catch { }
     } catch (err) {
       console.error(err)
     } finally {
@@ -164,22 +128,6 @@ export default function Profile() {
     }
   }
 
-  const handleSubmitRequest = async (e) => {
-    e.preventDefault()
-    setSubmitting(true)
-    try {
-      const token = await getAccessTokenSilently()
-      const result = await submitCompanyRequest(requestForm, token)
-      setMyRequest(result)
-      setRequestSent(true)
-      setShowRequestForm(false)
-    } catch (err) {
-      alert(err.message)
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
   const displayName = form.first_name
     ? `${form.first_name} ${form.last_name}`.trim()
     : auth0User?.name || auth0User?.email || 'Usuario'
@@ -207,102 +155,8 @@ export default function Profile() {
               </span>
             )}
 
-            {profile?.user?.role === 'candidate' && (
-              <div className="profile-company-request">
-                {myRequest?.status === 'pending' && (
-                  <div className="request-badge request-badge--pending">
-                    ⏳ Solicitud pendiente
-                  </div>
-                )}
-                {myRequest?.status === 'accepted' && (
-                  <div className="request-badge request-badge--accepted">
-                    ✓ Solicitud aceptada
-                  </div>
-                )}
-                {myRequest?.status === 'rejected' && (
-                  <div className="request-badge request-badge--rejected">
-                    ✕ Solicitud rechazada
-                  </div>
-                )}
-                {(!myRequest || myRequest.status === 'rejected') && !showRequestForm && (
-                  <button
-                    className="profile-resume__btn"
-                    onClick={() => setShowRequestForm(true)}
-                    style={{ marginTop: '12px' }}
-                  >
-                    🏢 Solicitar cuenta empresa
-                  </button>
-                )}
-
-                {showRequestForm && (
-                  <form onSubmit={handleSubmitRequest} style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    <input
-                      className="form-input"
-                      placeholder="Nombre de la empresa *"
-                      required
-                      value={requestForm.company_name}
-                      onChange={e => setRequestForm(p => ({ ...p, company_name: e.target.value }))}
-                    />
-                    <input
-                      className="form-input"
-                      placeholder="Industria"
-                      value={requestForm.industry}
-                      onChange={e => setRequestForm(p => ({ ...p, industry: e.target.value }))}
-                    />
-                    <textarea
-                      className="form-input"
-                      placeholder="Descripción de la empresa"
-                      rows={3}
-                      value={requestForm.description}
-                      onChange={e => setRequestForm(p => ({ ...p, description: e.target.value }))}
-                      style={{ resize: 'vertical' }}
-                    />
-                    <input
-                      className="form-input"
-                      placeholder="Sitio web"
-                      type="url"
-                      value={requestForm.website_url}
-                      onChange={e => setRequestForm(p => ({ ...p, website_url: e.target.value }))}
-                    />
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <input
-                        className="form-input"
-                        placeholder="Ciudad"
-                        value={requestForm.city}
-                        onChange={e => setRequestForm(p => ({ ...p, city: e.target.value }))}
-                      />
-                      <input
-                        className="form-input"
-                        placeholder="País"
-                        value={requestForm.country}
-                        onChange={e => setRequestForm(p => ({ ...p, country: e.target.value }))}
-                      />
-                    </div>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button
-                        type="button"
-                        className="profile-resume__btn"
-                        onClick={() => setShowRequestForm(false)}
-                      >
-                        Cancelar
-                      </button>
-                      <button
-                        type="submit"
-                        className="form-save-btn"
-                        disabled={submitting}
-                        style={{ flex: 1 }}
-                      >
-                        {submitting ? 'Enviando...' : 'Enviar solicitud'}
-                      </button>
-                    </div>
-                  </form>
-                )}
-              </div>
-            )}
-
             <div className="profile-resume">
               <p className="profile-resume__label">CV / Portafolio</p>
-
               <button
                 className="profile-resume__btn"
                 onClick={() => fileRef.current?.click()}
@@ -312,18 +166,35 @@ export default function Profile() {
                   ? <><span className="loading-spinner" /> Subiendo...</>
                   : resumeUploaded || cvUrl
                     ? <>✓ Reemplazar CV</>
-                    : <><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1v9M4 5l4-4 4 4M2 12v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg> Subir CV (PDF)</>
+                    : <><svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M8 1v9M4 5l4-4 4 4M2 12v2a1 1 0 001 1h10a1 1 0 001-1v-2"
+                        stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                    </svg> Subir CV (PDF)</>
                 }
               </button>
 
               {cvUrl && (
-                <a href={cvUrl} target="_blank" rel="noreferrer" className="profile-resume__btn" style={{ marginTop: '8px', textDecoration: 'none', justifyContent: 'center', display: 'flex' }}>
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 10v4h12v-4M8 1v9M5 7l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
+                <a href={cvUrl} target="_blank" rel="noreferrer"
+                  className="profile-resume__btn"
+                  style={{ marginTop: '8px', textDecoration: 'none', justifyContent: 'center', display: 'flex' }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M2 10v4h12v-4M8 1v9M5 7l3 3 3-3"
+                      stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
                   Ver mi CV
                 </a>
               )}
 
-              <input ref={fileRef} type="file" accept=".pdf" onChange={handleResume} style={{ display: 'none' }} />
+              <input ref={fileRef} type="file" accept=".pdf"
+                onChange={handleResume} style={{ display: 'none' }} />
+            </div>
+
+            <div style={{ marginTop: '12px', width: '100%' }}>
+              {profile?.user?.role === 'candidate' && (
+                <button className="profile-resume__btn" onClick={() => setShowInviteModal(true)}>
+                  👥 Invitar a un amigo
+                </button>
+              )}
             </div>
           </aside>
 
@@ -337,49 +208,80 @@ export default function Profile() {
               <div className="form-grid">
                 <div className="form-field">
                   <label className="form-label">Nombre</label>
-                  <input className="form-input" type="text" name="first_name" value={form.first_name} onChange={handleChange} placeholder="Tu nombre" />
+                  <input className="form-input" type="text" name="first_name"
+                    value={form.first_name} onChange={handleChange} placeholder="Tu nombre" />
                 </div>
                 <div className="form-field">
                   <label className="form-label">Apellido</label>
-                  <input className="form-input" type="text" name="last_name" value={form.last_name} onChange={handleChange} placeholder="Tu apellido" />
+                  <input className="form-input" type="text" name="last_name"
+                    value={form.last_name} onChange={handleChange} placeholder="Tu apellido" />
                 </div>
               </div>
 
               <div className="form-grid">
                 <div className="form-field">
                   <label className="form-label">Teléfono</label>
-                  <input className="form-input" type="tel" name="phone" value={form.phone} onChange={handleChange} placeholder="+51 999 999 999" />
+                  <input className="form-input" type="tel" name="phone"
+                    value={form.phone} onChange={handleChange} placeholder="+51 999 999 999" />
                 </div>
                 <div className="form-field">
                   <label className="form-label">Años de experiencia</label>
-                  <input className="form-input" type="number" name="experience_years" value={form.experience_years} onChange={handleChange} min="0" max="50" />
+                  <input className="form-input" type="text" inputMode="numeric"
+                    pattern="[0-9]*" name="experience_years"
+                    value={form.experience_years} onChange={handleChange} placeholder="0" />
                 </div>
               </div>
 
               <div className="form-grid">
                 <div className="form-field">
                   <label className="form-label">Ciudad</label>
-                  <input className="form-input" type="text" name="city" value={form.city} onChange={handleChange} placeholder="Lima" />
+                  <input className="form-input" type="text" name="city"
+                    value={form.city} onChange={handleChange} placeholder="Lima" />
                 </div>
                 <div className="form-field">
                   <label className="form-label">País</label>
-                  <input className="form-input" type="text" name="country" value={form.country} onChange={handleChange} placeholder="Perú" />
+                  <input className="form-input" type="text" name="country"
+                    value={form.country} onChange={handleChange} placeholder="Perú" />
                 </div>
               </div>
 
               <div className="form-field">
-                <label className="form-label">Habilidades <span className="form-label__hint">separadas por coma</span></label>
-                <input className="form-input" type="text" name="skills" value={form.skills} onChange={handleChange} placeholder="React, Node.js, Python..." />
+                <label className="form-label">Dirección</label>
+                <input className="form-input" type="text" name="address"
+                  value={form.address} onChange={handleChange}
+                  placeholder="Av. Javier Prado 123, San Isidro" />
+              </div>
+
+              <div className="form-field">
+                <label className="form-label">
+                  Habilidades <span className="form-label__hint">separadas por coma</span>
+                </label>
+                <input className="form-input" type="text" name="skills"
+                  value={form.skills} onChange={handleChange}
+                  placeholder="React, Node.js, Python..." />
+              </div>
+
+              <div className="form-field">
+                <label className="form-label">
+                  Idiomas <span className="form-label__hint">separados por coma</span>
+                </label>
+                <input className="form-input" type="text" name="languages"
+                  value={form.languages} onChange={handleChange}
+                  placeholder="Español, Inglés, Portugués..." />
               </div>
 
               <div className="form-grid">
                 <div className="form-field">
                   <label className="form-label">LinkedIn</label>
-                  <input className="form-input" type="url" name="linkedin_url" value={form.linkedin_url} onChange={handleChange} placeholder="https://linkedin.com/in/..." />
+                  <input className="form-input" type="url" name="linkedin_url"
+                    value={form.linkedin_url} onChange={handleChange}
+                    placeholder="https://linkedin.com/in/..." />
                 </div>
                 <div className="form-field">
                   <label className="form-label">Portafolio</label>
-                  <input className="form-input" type="url" name="portfolio_url" value={form.portfolio_url} onChange={handleChange} placeholder="https://tuportafolio.com" />
+                  <input className="form-input" type="url" name="portfolio_url"
+                    value={form.portfolio_url} onChange={handleChange}
+                    placeholder="https://tuportafolio.com" />
                 </div>
               </div>
 
@@ -398,7 +300,9 @@ export default function Profile() {
                   {saving
                     ? <><span className="loading-spinner" /> Guardando...</>
                     : saved
-                      ? <><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8L6 12L14 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg> ¡Guardado!</>
+                      ? <><svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M2 8L6 12L14 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                      </svg> ¡Guardado!</>
                       : 'Guardar cambios'
                   }
                 </button>
@@ -406,7 +310,9 @@ export default function Profile() {
             </form>
           </section>
         </div>
-      </div>
-    </main>
+      </div >
+
+      {showInviteModal && <InviteModal onClose={() => setShowInviteModal(false)} />}
+    </main >
   )
 }

@@ -1,0 +1,42 @@
+.owner-info {
+  background: var(--cream);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  margin-bottom: 24px;
+}
+
+.owner-info__title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--ink);
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.owner-info__input {
+  background: var(--surface) !important;
+  cursor: not-allowed;
+  color: var(--text-secondary) !important;
+}
+
+.owner-info__note {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 12px;
+}
+
+.owner-info__status {
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-block;
+  margin-top: 4px;
+}
+
+.owner-info__status--accepted { background: #e8f5e9; color: #16a34a; }
+.owner-info__status--pending  { background: #fff8e1; color: #f59e0b; }
+.owner-info__status--rejected { background: #fce4ec; color: #e11d48; }

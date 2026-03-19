@@ -1,0 +1,89 @@
+.recommendations-section {
+  margin-bottom: 48px;
+}
+
+.recommendations__title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+  color: var(--ink);
+}
+
+.recommendations__skeletons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.recommendation-skeleton {
+  background: var(--surface);
+  border-radius: 16px;
+  height: 140px;
+  animation: pulse 1.5s infinite;
+}
+
+.recommendations__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.recommendation-card {
+  background: #fff;
+  border: 2px solid #3DBFB8;
+  border-radius: 16px;
+  padding: 20px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  min-width: 0;
+}
+
+.recommendation-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(61,191,184,0.2);
+}
+
+.recommendation-card__score {
+  display: inline-block;
+  background: #3DBFB8;
+  color: #fff;
+  border-radius: 20px;
+  padding: 2px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.recommendation-card__title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.recommendation-card__company {
+  color: #666;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+
+.recommendation-card__reason {
+  color: #444;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.recommendation-card__tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .recommendations__list,
+  .recommendations__skeletons {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,25 @@
+.invite-modal {
+  max-width: 440px;
+}
+
+.invite-modal__success {
+  text-align: center;
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.invite-modal__success p {
+  color: #16a34a;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.invite-modal__note {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 10px 14px;
+}

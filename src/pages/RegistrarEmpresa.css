@@ -1,0 +1,250 @@
+.register-empresa {
+  min-height: 100vh;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.register-empresa__container {
+  width: 100%;
+  max-width: 480px;
+}
+
+.register-empresa__header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.register-empresa__logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--accent);
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+.register-empresa__title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.register-empresa__subtitle {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.register-empresa__card {
+  background: var(--cream);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 36px;
+}
+
+.register-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 32px;
+}
+
+.register-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  flex: 1;
+}
+
+.register-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+
+.register-step--done:not(:last-child)::after {
+  background: var(--accent);
+}
+
+.register-step__dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  position: relative;
+  z-index: 1;
+}
+
+.register-step--active .register-step__dot {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--cream);
+}
+
+.register-step--done .register-step__dot {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.register-step__label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.register-step--active .register-step__label {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.register-form__hint {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.register-code-input {
+  letter-spacing: 8px;
+  font-size: 1.4rem;
+  text-align: center;
+}
+
+.register-btn {
+  width: 100%;
+  padding: 13px;
+  background: var(--ink);
+  color: var(--cream);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.register-btn:hover:not(:disabled) {
+  background: var(--accent);
+}
+
+.register-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.register-btn-ghost {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.register-btn-ghost:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.register-done {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.register-done__icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.register-done__title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.4rem;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+
+.register-done__text {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.register-empresa__login {
+  text-align: center;
+  margin-top: 20px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.register-empresa__login span {
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.register-empresa__login span:hover {
+  text-decoration: underline;
+}
+
+.ruc-info {
+  background: #f0fafa;
+  border: 1px solid #3DBFB8;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-top: 8px;
+}
+
+.ruc-info__name {
+  font-weight: 700;
+  color: var(--ink);
+  font-size: 0.9rem;
+  margin-bottom: 2px;
+}
+
+.ruc-info__estado {
+  color: #16a34a;
+  font-size: 0.8rem;
+}
+
+.form-hint {
+  font-size: 0.82rem;
+  margin-top: 4px;
+  color: #666;
+}
+
+.form-hint--error { color: #e11d48; }
+
+@media (max-width: 640px) {
+  .register-empresa__card { padding: 24px; }
+}
