@@ -17,6 +17,8 @@ import {
 } from '../services/auth.service'
 import OwnerInfo from '../components/OwnerInfo'
 import InviteModal from '../components/InviteModal'
+import PointsBadge from '../components/PointsBadge'
+import CandidateProfileModal from '../components/CandidateProfileModal'
 import './Dashboard.css'
 
 const TABS = ['Resumen', 'Vacantes', 'Postulantes', 'Mi Empresa']
@@ -55,6 +57,8 @@ export default function Dashboard() {
     const [editing, setEditing] = useState(false)
     const [ownerInfo, setOwnerInfo] = useState(null)
     const [showInviteModal, setShowInviteModal] = useState(false)
+    const [pointsToken, setPointsToken] = useState(null)
+    const [selectedCandidate, setSelectedCandidate] = useState(null)
 
     useEffect(() => { loadAll() }, [])
 
@@ -62,6 +66,7 @@ export default function Dashboard() {
         try {
             setLoading(true)
             const token = await getToken()
+            setPointsToken(token)
             const [comp, vacs] = await Promise.all([
                 getMyCompany(token).catch(() => null),
                 getMyVacancies(token).catch(() => []),
@@ -88,7 +93,6 @@ export default function Dashboard() {
             } catch { }
         } finally {
             setLoading(false)
-
         }
     }
 
@@ -252,6 +256,8 @@ export default function Dashboard() {
                         <h1 className="dashboard__title">Dashboard</h1>
                         <p className="dashboard__subtitle">{company?.company_name || 'Tu empresa'}</p>
                     </div>
+
+                    <PointsBadge token={pointsToken} />
 
                     <button className="dash-btn dash-btn--ghost" onClick={() => setShowInviteModal(true)}>
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -517,8 +523,16 @@ export default function Dashboard() {
                                         {(a.first_name || 'U')[0].toUpperCase()}
                                     </div>
                                     <div className="dash-applicant__info">
-                                        <span className="dash-applicant__name">{a.first_name} {a.last_name}</span>
-                                        <span className="dash-applicant__meta">{a.city}, {a.country} · {a.experience_years} años exp.</span>
+                                        <span
+                                            className="dash-applicant__name"
+                                            style={{ cursor: 'pointer', textDecoration: 'underline' }}
+                                            onClick={() => setSelectedCandidate(a)}
+                                        >
+                                            {a.first_name} {a.last_name}
+                                        </span>
+                                        <span className="dash-applicant__meta">
+                                            {a.city}, {a.country} · {a.experience_years} años exp.
+                                        </span>
                                         {a.skills && (
                                             <div className="dash-applicant__skills">
                                                 {(typeof a.skills === 'string' ? a.skills.split(',') : a.skills)
@@ -538,15 +552,6 @@ export default function Dashboard() {
                                             const s = statusMap[a.status] || statusMap.pending
                                             return <span className={`dash-status ${s.cls}`}>{s.label}</span>
                                         })()}
-
-                                        {a.candidate_profile_id && (
-                                            <button
-                                                className="dash-btn dash-btn--sm"
-                                                onClick={() => handleViewCV(a.candidate_profile_id)}
-                                            >
-                                                CV
-                                            </button>
-                                        )}
                                         {(!a.status || a.status === 'pending') && (
                                             <>
                                                 <button className="dash-btn dash-btn--accept" onClick={() => handleApplyStatus(a.apply_id, 'accepted')}>
@@ -642,6 +647,7 @@ export default function Dashboard() {
                     </div>
                 )}
             </div>
+
             {editingVacancy && (
                 <div className="modal-overlay" onClick={() => setEditingVacancy(null)}>
                     <div className="modal" onClick={e => e.stopPropagation()}>
@@ -726,6 +732,13 @@ export default function Dashboard() {
                 </div>
             )}
             {showInviteModal && <InviteModal onClose={() => setShowInviteModal(false)} />}
+            {selectedCandidate && (
+                <CandidateProfileModal
+                    candidate={selectedCandidate}
+                    onClose={() => setSelectedCandidate(null)}
+                    onViewCV={handleViewCV}
+                />
+            )}
         </main>
     )
 }

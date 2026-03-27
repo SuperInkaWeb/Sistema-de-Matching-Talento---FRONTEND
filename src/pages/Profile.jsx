@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import InviteModal from '../components/InviteModal'
 import EducationSection from '../components/EducationSection'
+import PointsBadge from '../components/PointsBadge'
 import './Profile.css'
 
 export default function Profile() {
@@ -35,11 +36,16 @@ export default function Profile() {
   const [cvUrl, setCvUrl] = useState(null)
   const [showInviteModal, setShowInviteModal] = useState(false)
   const [education, setEducation] = useState([])
+  const [token, setToken] = useState(null)
 
   useEffect(() => {
     if (role === 'company') navigate('/dashboard', { replace: true })
     else if (role === 'admin') navigate('/admin', { replace: true })
   }, [role])
+
+useEffect(() => {
+  getAccessTokenSilently().then(t => setToken(t)).catch(() => {})
+}, [])
 
   useEffect(() => { fetchProfile(), fetchEducation() }, [])
 
@@ -224,6 +230,8 @@ export default function Profile() {
                 {profile.user.role === 'company' ? '🏢 Empresa' : '👤 Candidato'}
               </span>
             )}
+            
+            <PointsBadge token={token} showHistory={true} />
 
             <div className="profile-resume">
               <p className="profile-resume__label">CV / Portafolio</p>

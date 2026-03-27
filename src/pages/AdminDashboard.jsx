@@ -11,6 +11,11 @@ import {
   getAllVacanciesAdmin
 } from '../services/admin.services.js'
 import './AdminDashboard.css'
+import AdminAnalytics from '../components/AdminAnalytics'
+import {
+  API_URL,
+  buildHeaders
+} from '../services/auth.service'
 
 const TABS = ['Estadísticas', 'Candidatos', 'Empresas', 'Vacantes', 'Solicitudes']
 
@@ -22,8 +27,9 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([])
   const [vacancies, setVacancies] = useState([])
   const [loading, setLoading] = useState(true)
+  const [token, setToken] = useState(null)
 
-  useEffect(() => { loadAll() }, [])
+  useEffect(() => { loadAll(), getToken().then(t => setToken(t)) }, [])
 
   const loadAll = async () => {
     setLoading(true)
@@ -91,28 +97,8 @@ export default function AdminDashboard() {
           ))}
         </div>
 
-        {tab === 'Estadísticas' && stats && (
-          <div className="admin-section animate-fade-up">
-            <div className="admin-stats">
-              {[
-                { label: 'Candidatos', value: stats.total_candidates, tab: 'Candidatos' },
-                { label: 'Empresas', value: stats.total_companies, tab: 'Empresas' },
-                { label: 'Vacantes activas', value: stats.active_vacancies, tab: 'Vacantes' },
-                { label: 'Postulaciones', value: stats.total_applies, tab: null },
-                { label: 'Solicitudes pendientes', value: stats.pending_requests, tab: 'Solicitudes', highlight: true },
-              ].map(s => (
-                <div
-                  key={s.label}
-                  className={`admin-stat ${s.highlight ? 'admin-stat--highlight' : ''} ${s.tab ? 'admin-stat--clickable' : ''}`}
-                  onClick={() => s.tab && setTab(s.tab)}
-                >
-                  <span className="admin-stat__number">{s.value}</span>
-                  <span className="admin-stat__label">{s.label}</span>
-                  {s.tab && <span className="admin-stat__arrow">→</span>}
-                </div>
-              ))}
-            </div>
-          </div>
+        {tab === 'Estadísticas' && token && (
+           <AdminAnalytics token={token} API_URL={API_URL} buildHeaders={buildHeaders} />
         )}
 
         {tab === 'Candidatos' && (

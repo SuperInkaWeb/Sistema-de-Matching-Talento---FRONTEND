@@ -1,0 +1,87 @@
+.candidate-modal {
+    max-width: 500px;
+}
+
+.candidate-modal__location {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-top: 2px;
+}
+
+.candidate-modal__body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.candidate-modal__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+}
+
+.candidate-modal__field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.candidate-modal__label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.candidate-modal__value {
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 0.95rem;
+}
+
+.candidate-modal__link {
+    color: var(--accent);
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.candidate-modal__link:hover {
+    text-decoration: underline;
+}
+
+.candidate-modal__section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.candidate-modal__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.candidate-modal__tag {
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.candidate-modal__tag--skill {
+    background: var(--surface);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+}
+
+.candidate-modal__tag--lang {
+    background: #fff8e1;
+    color: #d97706;
+}
+
+.candidate-modal__cv-btn {
+    width: 100%;
+    margin-top: 4px;
+}

@@ -1,0 +1,67 @@
+.points-badge {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+}
+
+.points-badge__main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.points-badge__pts {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--ink);
+}
+
+.points-badge__level {
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 2px 10px;
+    border-radius: 20px;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.points-badge__month {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.points-badge__history {
+    margin-top: 12px;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.points-badge__history-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+}
+
+.points-badge__history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.82rem;
+}
+
+.points-badge__history-desc {
+    color: var(--text-secondary);
+}
+
+.points-badge__history-pts {
+    color: #16a34a;
+    font-weight: 700;
+}

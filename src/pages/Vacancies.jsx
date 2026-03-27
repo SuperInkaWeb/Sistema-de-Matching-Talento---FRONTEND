@@ -42,6 +42,7 @@ export default function Vacancies() {
     if (isAuthenticated && role === 'candidate') {
       loadRecommendations()
       loadProfile()
+      loadMyApplications()
     }
   }, [isAuthenticated, role])
 
@@ -82,6 +83,21 @@ export default function Vacancies() {
       setLoadingRecs(false)
     }
   }
+
+  const loadMyApplications = async () => {
+  try {
+    const token = await getToken()
+    const res = await fetch(`${API_URL}/apply/myvacancies`, {
+      headers: buildHeaders(token)
+    })
+    if (res.ok) {
+      const data = await res.json()
+      const appliedMap = {}
+      data.forEach(app => { appliedMap[app.vacancy_id] = true })
+      setApplied(appliedMap)
+    }
+  } catch {}
+}
 
   const handleApply = async (vacancyId) => {
     if (!isAuthenticated) return
