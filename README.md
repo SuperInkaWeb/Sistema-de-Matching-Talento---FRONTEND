@@ -52,7 +52,7 @@ Crea un archivo `.env` en la raíz del proyecto:
 VITE_AUTH0_DOMAIN=dev-xxxxxxxx.us.auth0.com
 VITE_AUTH0_CLIENT_ID=tu_client_id
 VITE_AUTH0_AUDIENCE=https://[tu.0auth-api]
-VITE_API_URL=http:(https://[//localhost:4000].onrender.com
+VITE_API_URL=https://[localhost:4000].onrender.com
 ```
 
 ---
