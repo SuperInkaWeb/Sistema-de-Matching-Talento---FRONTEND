@@ -57,7 +57,7 @@
 .admin-tab--active {
   color: #0a0a0f;
   font-weight: 700;
-  border-bottom-color: #3DBFB8;
+  border-bottom-color: #1E2EB8;
 }
 
 .admin-section__title {
@@ -96,7 +96,7 @@
   font-family: 'Syne', sans-serif;
   font-size: 2.2rem;
   font-weight: 800;
-  color: #3DBFB8;
+  color: #1E2EB8;
   line-height: 1;
 }
 
@@ -181,7 +181,7 @@
 }
 
 .admin-request__link {
-  color: #3DBFB8;
+  color: #1E2EB8;
   font-size: 0.85rem;
   display: block;
   margin-bottom: 4px;
@@ -250,7 +250,7 @@
 }
 
 .admin-stat__arrow {
-  color: #3DBFB8;
+  color: #1E2EB8;
   font-size: 1.1rem;
   margin-top: 4px;
 }

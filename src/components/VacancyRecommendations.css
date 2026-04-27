@@ -31,7 +31,7 @@
 
 .recommendation-card {
   background: #fff;
-  border: 2px solid #3DBFB8;
+  border: 2px solid #1E2EB8;
   border-radius: 16px;
   padding: 20px;
   cursor: pointer;
@@ -46,7 +46,7 @@
 
 .recommendation-card__score {
   display: inline-block;
-  background: #3DBFB8;
+  background: #E8472A;
   color: #fff;
   border-radius: 20px;
   padding: 2px 12px;

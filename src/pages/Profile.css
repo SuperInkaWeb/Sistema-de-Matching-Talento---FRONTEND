@@ -105,8 +105,8 @@
 }
 
 .profile-resume__btn:hover:not(:disabled) {
-  border-color: #3DBFB8;
-  color: #3DBFB8;
+  border-color: #1E2EB8;
+  color: #E8472A;
 }
 
 /* Form Section */

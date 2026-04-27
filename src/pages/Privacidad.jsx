@@ -29,7 +29,7 @@ export default function Privacidad() {
 
                 <section className="legal-section">
                     <h2>5. Tus derechos</h2>
-                    <p>Tienes derecho a acceder, corregir o eliminar tus datos. Contáctanos en <a href="mailto:contacto@humantyx.com">contacto@humantyx.com</a> para ejercer estos derechos.</p>
+                    <p>Tienes derecho a acceder, corregir o eliminar tus datos. Contáctanos en <a href="mailto:contacto@humatchy.com">contacto@humatchy.com</a> para ejercer estos derechos.</p>
                 </section>
 
                 <section className="legal-section">

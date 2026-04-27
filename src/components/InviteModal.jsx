@@ -58,7 +58,7 @@ export default function InviteModal({ onClose }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal invite-modal" onClick={e => e.stopPropagation()}>
         <div className="modal__header">
-          <h2 className="modal__title">Invitar a Humantyx</h2>
+          <h2 className="modal__title">Invitar a Humatchy</h2>
           <button className="modal__close" onClick={onClose}>✕</button>
         </div>
 

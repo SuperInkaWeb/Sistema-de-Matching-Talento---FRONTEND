@@ -38,13 +38,13 @@
   font-family: 'Syne', sans-serif;
   font-size: 1.6rem;
   font-weight: 800;
-  color: #3DBFB8;
+  color: #1E2EB8;
   letter-spacing: -0.03em;
   line-height: 1;
 }
 
 .navbar__logo-x {
-  color: #3DBFB8;
+  color: #1E2EB8;
 }
 
 /* ===== NAV ===== */
@@ -84,7 +84,7 @@
   left: 14px;
   right: 14px;
   height: 2px;
-  background: #3DBFB8;
+  background: #1E2EB8;
   border-radius: 1px;
 }
 
@@ -106,7 +106,7 @@
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: #3DBFB8;
+  background: #1E2EB8;
   color: #fff;
   display: flex;
   align-items: center;
@@ -144,7 +144,7 @@
 }
 
 .navbar__btn--primary:hover {
-  background: #3DBFB8;
+  background: #1E2EB8;
   transform: translateY(-1px);
   box-shadow: 0 4px 16px rgba(61, 191, 184, 0.35);
 }

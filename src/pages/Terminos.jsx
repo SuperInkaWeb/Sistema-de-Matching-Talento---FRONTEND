@@ -9,12 +9,12 @@ export default function Terminos() {
 
                 <section className="legal-section">
                     <h2>1. Aceptación de los términos</h2>
-                    <p>Al acceder y usar Humantyx Jobs, aceptas estos términos y condiciones. Si no estás de acuerdo, no uses la plataforma.</p>
+                    <p>Al acceder y usar Humatchy, aceptas estos términos y condiciones. Si no estás de acuerdo, no uses la plataforma.</p>
                 </section>
 
                 <section className="legal-section">
                     <h2>2. Uso de la plataforma</h2>
-                    <p>Humantyx Jobs es una plataforma de matching de talento que conecta candidatos con empresas. Está prohibido el uso fraudulento, la publicación de información falsa o el acceso no autorizado a cuentas de terceros.</p>
+                    <p>Humatchy es una plataforma de matching de talento que conecta candidatos con empresas. Está prohibido el uso fraudulento, la publicación de información falsa o el acceso no autorizado a cuentas de terceros.</p>
                 </section>
 
                 <section className="legal-section">
@@ -29,17 +29,17 @@ export default function Terminos() {
 
                 <section className="legal-section">
                     <h2>5. Propiedad intelectual</h2>
-                    <p>Todo el contenido de Humantyx Jobs, incluyendo el logo, diseño y código, es propiedad de Humantyx. No está permitida su reproducción sin autorización.</p>
+                    <p>Todo el contenido de Humatchy, incluyendo el logo, diseño y código, es propiedad de Humatchy. No está permitida su reproducción sin autorización.</p>
                 </section>
 
                 <section className="legal-section">
                     <h2>6. Limitación de responsabilidad</h2>
-                    <p>Humantyx no garantiza el éxito en procesos de selección ni la veracidad de la información publicada por terceros.</p>
+                    <p>Humatchy no garantiza el éxito en procesos de selección ni la veracidad de la información publicada por terceros.</p>
                 </section>
 
                 <section className="legal-section">
                     <h2>7. Contacto</h2>
-                    <p>Para consultas sobre estos términos, escríbenos a <a href="mailto:contacto@humantyx.com">contacto@humantyx.com</a></p>
+                    <p>Para consultas sobre estos términos, escríbenos a <a href="mailto:contacto@humatchy.com">contacto@humatchy.com</a></p>
                 </section>
             </div>
         </main>

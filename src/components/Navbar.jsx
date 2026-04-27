@@ -27,7 +27,7 @@ export default function Navbar() {
     <header className={`navbar ${scrolled ? 'navbar--scrolled' : ''}`}>
       <div className="navbar__inner">
         <Link to="/" className="navbar__logo">
-          <img src="/logo.png" alt="Humantyx Jobs" className="navbar__logo-img" />
+          <img src="/logo.png" alt="Humatchy Jobs" className="navbar__logo-img" />
         </Link>
 
         <nav className={`navbar__nav ${menuOpen ? 'navbar__nav--open' : ''}`}>

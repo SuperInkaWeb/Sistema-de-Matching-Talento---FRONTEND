@@ -33,7 +33,7 @@ const faqs = [
     },
     {
         q: '¿Cómo contacto al soporte?',
-        a: 'Puedes escribirnos al formulario de contacto en el footer, por email a contacto@humantyx.com o por WhatsApp.'
+        a: 'Puedes escribirnos al formulario de contacto en el footer, por email a contacto@humatchy.com o por WhatsApp.'
     },
 ]
 
@@ -44,7 +44,7 @@ export default function FAQ() {
         <main className="legal-page">
             <div className="container">
                 <h1 className="legal-page__title">Preguntas Frecuentes</h1>
-                <p className="legal-page__subtitle">Todo lo que necesitas saber sobre Humantyx Jobs</p>
+                <p className="legal-page__subtitle">Todo lo que necesitas saber sobre Humatchy</p>
 
                 <div className="faq-list">
                     {faqs.map((faq, i) => (

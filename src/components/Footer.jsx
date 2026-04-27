@@ -37,20 +37,20 @@ export default function Footer() {
                 <div className="footer__grid">
 
                     <div className="footer__brand">
-                        <img src="/logo.png" alt="Humantyx Jobs" className="footer__logo" />
+                        <img src="/logo.png" alt="Humatchy" className="footer__logo" />
                         <p className="footer__tagline">
                             Conectamos talento excepcional con las empresas que lo buscan.
                         </p>
                         <div className="footer__social">
                             <a href="https://linkedin.com" target="_blank" rel="noreferrer"
-                                className="footer__social-btn" aria-label="LinkedIn">
+                                className="footer__social-btn footer__social-btn--linkedin" aria-label="LinkedIn">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z" />
                                     <circle cx="4" cy="4" r="2" />
                                 </svg>
                             </a>
                             <a href="https://instagram.com" target="_blank" rel="noreferrer"
-                                className="footer__social-btn" aria-label="Instagram">
+                                className="footer__social-btn footer__social-btn--instagram" aria-label="Instagram">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                     <rect x="2" y="2" width="20" height="20" rx="5" />
                                     <circle cx="12" cy="12" r="4" />
@@ -79,17 +79,17 @@ export default function Footer() {
                         <Link to="/terminos" className="footer__link">Términos y condiciones</Link>
                         <Link to="/privacidad" className="footer__link">Política de privacidad</Link>
                         <Link to="/faq" className="footer__link">Preguntas frecuentes</Link>
-                        <Link to="/acerca" className="footer__link">Acerca de Humantyx</Link>
+                        <Link to="/acerca" className="footer__link">Acerca de Humatchy</Link>
                     </div>
 
                     <div className="footer__contact">
                         <h4 className="footer__links-title">Contáctanos</h4>
-                        <a href="mailto:contacto@humantyx.com" className="footer__contact-item">
+                        <a href="mailto:contacto@humatchy.com" className="footer__contact-item">
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                                 <path d="M2 3h12a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V4a1 1 0 011-1z" stroke="currentColor" strokeWidth="1.5" />
                                 <path d="M1 4l7 5 7-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                             </svg>
-                            contacto@humantyx.com
+                            contacto@humatchy.com
                         </a>
                         <a href="https://wa.me/51999999999" target="_blank" rel="noreferrer" className="footer__contact-item">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -135,7 +135,7 @@ export default function Footer() {
                 </div>
 
                 <div className="footer__bottom">
-                    <p>© {new Date().getFullYear()} Humantyx Jobs. Todos los derechos reservados.</p>
+                    <p>© {new Date().getFullYear()} Humatchy. Todos los derechos reservados.</p>
                 </div>
             </div>
         </footer>

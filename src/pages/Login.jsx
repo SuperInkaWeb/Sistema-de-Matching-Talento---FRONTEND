@@ -21,7 +21,9 @@ export default function Login() {
 
       <div className="login-card">
         <div className="login-card__header">
-          <div className="login-card__wordmark">Humantyx</div>
+          <div className="login-card__wordmark">
+            <img src="/logo.png" alt="Humatchy" className="acerca-logo" />
+          </div>
           <p className="login-card__subtitle">Conecta con las mejores oportunidades.</p>
         </div>
 

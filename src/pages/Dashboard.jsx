@@ -533,7 +533,7 @@ export default function Dashboard() {
                         )}
 
                         {loadingAiRecs && (
-                            <div style={{ marginBottom: '24px', color: '#3DBFB8', fontSize: '0.9rem' }}>
+                            <div style={{ marginBottom: '24px', color: '#E8472A', fontSize: '0.9rem' }}>
                                 ✨ Analizando candidatos con IA...
                             </div>
                         )}

@@ -103,7 +103,7 @@ export default function RegisterEmpresa() {
             <div className="register-empresa__container">
                 <div className="register-empresa__header">
                     <h1 className="register-empresa__logo" onClick={() => navigate('/')}>
-                        Humantyx
+                        Humatchy
                     </h1>
                     <h2 className="register-empresa__title">Crear cuenta empresa</h2>
                     <p className="register-empresa__subtitle">
@@ -242,7 +242,7 @@ export default function RegisterEmpresa() {
                                 Tu solicitud está siendo revisada por nuestro equipo. Te notificaremos por correo cuando sea aprobada.
                             </p>
                             <button className="register-btn" onClick={() => navigate('/')}>
-                                Ir a Humantyx
+                                Ir a Humatchy
                             </button>
                         </div>
                     )}

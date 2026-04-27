@@ -58,7 +58,7 @@ export default function Registro() {
   return (
     <main className="registro-page">
       <div className="registro-container">
-        <h1 className="registro-logo" onClick={() => navigate('/')}>Humantyx</h1>
+        <h1 className="registro-logo" onClick={() => navigate('/')}>Humatchy</h1>
 
         {error ? (
           <div className="registro-card">
@@ -75,7 +75,7 @@ export default function Registro() {
           </div>
         ) : (
           <div className="registro-card">
-            <h2 className="registro-title">¡Te invitaron a Humantyx!</h2>
+            <h2 className="registro-title">¡Te invitaron a Humatchy!</h2>
             <p className="registro-subtitle">
               Fuiste invitado a unirte como{' '}
               <strong>{invitation?.role === 'company' ? 'empresa' : 'candidato'}</strong>.

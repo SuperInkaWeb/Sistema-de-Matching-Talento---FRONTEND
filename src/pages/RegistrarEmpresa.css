@@ -219,7 +219,7 @@
 
 .ruc-info {
   background: #f0fafa;
-  border: 1px solid #3DBFB8;
+  border: 1px solid #1E2EB8;
   border-radius: 8px;
   padding: 10px 14px;
   margin-top: 8px;
@@ -255,7 +255,7 @@
 
 .ruc-info {
   background: #f0fafa;
-  border: 1.5px solid #3DBFB8;
+  border: 1.5px solid #1E2EB8;
   border-radius: 10px;
   padding: 12px 16px;
   margin-top: 8px;
@@ -265,7 +265,7 @@
 .ruc-info__label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #3DBFB8;
+  color: #E8472A;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 4px;

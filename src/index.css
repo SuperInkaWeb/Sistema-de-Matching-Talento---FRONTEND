@@ -1,28 +1,24 @@
 /* ===== HUMANTYX===== */
 :root {
-  --ink: #0a0a0f;
-  --ink-soft: #1a1a2e;
-  --surface: #f4f1eb;
-  --surface-2: #ede8df;
+  --ink: #0f1035;
   --cream: #faf8f3;
-  --accent: #3DBFB8;
-  --accent-light: #52d4cd;
-  --accent-muted: rgba(61, 191, 184, 0.12);
-  --gold: #c9a84c;
-  --text-primary: #0a0a0f;
-  --text-secondary: #4a4a5a;
-  --text-muted: #8a8a9a;
-  --border: rgba(10, 10, 15, 0.1);
-  --border-strong: rgba(10, 10, 15, 0.2);
-  --shadow-sm: 0 2px 8px rgba(10, 10, 15, 0.06);
-  --shadow-md: 0 8px 32px rgba(10, 10, 15, 0.1);
-  --shadow-lg: 0 24px 64px rgba(10, 10, 15, 0.14);
-  --radius: 4px;
-  --radius-md: 8px;
-  --radius-lg: 16px;
+  --surface: #f4f1eb;
+  --accent: #1E2EB8;
+  --accent-2: #E8472A;
+  --gold: #E8472A;
+  --border: #e5e2db;
+  --border-strong: #ccc9c0;
+  --text-primary: #0f1035;
+  --text-secondary: #444;
+  --text-muted: #999;
+  --shadow-sm: 0 1px 3px rgba(15,16,53,0.08);
+  --shadow-md: 0 4px 16px rgba(15,16,53,0.12);
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --transition: 0.2s ease;
   --font-display: 'Syne', sans-serif;
   --font-body: 'DM Sans', sans-serif;
-  --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 *,
@@ -170,7 +166,7 @@ body::before {
   width: 36px;
   height: 36px;
   border: 3px solid rgba(61, 191, 184, 0.2);
-  border-top-color: #3DBFB8;
+  border-top-color: #1E2EB8;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
