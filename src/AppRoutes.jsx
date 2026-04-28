@@ -12,6 +12,7 @@ import Terminos from './pages/Terminos'
 import Privacidad from './pages/Privacidad'
 import FAQ from './pages/FAQ'
 import Acerca from './pages/Acerca'
+import Pricing from './pages/Pricing'
 
 export default function AppRoutes() {
   return (
@@ -47,6 +48,9 @@ export default function AppRoutes() {
       } />
       <Route path="/acerca" element={
         <Acerca />
+      } />
+      <Route path="/premium" element={
+        <Pricing />
       } />
     </Routes>
   )

@@ -54,6 +54,11 @@ export default function Navbar() {
               Dashboard
             </Link>
           )}
+          {user && (
+            <Link to="/premium" className={`navbar__link ${location.pathname === '/premium' ? 'navbar__link--active' : ''}`}>
+            ⭐ Premium
+          </Link>
+          )}
         </nav>
 
         <div className="navbar__actions">

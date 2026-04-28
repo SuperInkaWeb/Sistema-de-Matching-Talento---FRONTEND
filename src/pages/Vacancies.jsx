@@ -35,6 +35,7 @@ export default function Vacancies() {
   const [candidateProfile, setCandidateProfile] = useState(null)
   const [recommendations, setRecommendations] = useState([])
   const [loadingRecs, setLoadingRecs] = useState(false)
+  const [limitReached, setLimitReached] = useState(false)
 
   useEffect(() => { loadVacancies() }, [])
 
@@ -75,14 +76,23 @@ export default function Vacancies() {
     setLoadingRecs(true)
     try {
       const token = await getAccessTokenSilently()
-      const data = await getRecommendedVacancies(token)
-      setRecommendations(data.recommendations || [])
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoadingRecs(false)
+      const res = await fetch (getRecommendedVacancies(token), {
+      headers: buildHeaders(token)
+    })
+    const data = await res.json()
+    if (res.status === 429) {
+      setRecommendations([])
+      setLimitReached(true)
+      return
     }
+    setRecommendations(data.recommendations || [])
+    setLimitReached(false)
+  } catch (err) {
+    console.error(err)
+  } finally {
+    setLoadingRecs(false)
   }
+}
 
   const loadMyApplications = async () => {
   try {
@@ -214,6 +224,7 @@ export default function Vacancies() {
               recommendations={recommendations}
               vacancies={vacancies}
               loading={loadingRecs}
+              limitReached={limitReached}
               onSelect={setSelectedVacancy}
             />
           )}

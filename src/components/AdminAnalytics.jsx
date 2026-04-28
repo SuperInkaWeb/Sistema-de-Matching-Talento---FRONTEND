@@ -16,7 +16,7 @@ import {
 } from 'recharts'
 import './AdminAnalytics.css'
 
-const COLORS = ['#3DBFB8', '#0a0a0f', '#f59e0b', '#e11d48', '#7c3aed', '#16a34a']
+const COLORS = ['#1E2EB8', '#E8472A', '#f59e0b', '#16a34a', '#7c3aed', '#0f1035']
 
 const MONTH_LABELS = {
     '01': 'Ene', '02': 'Feb', '03': 'Mar', '04': 'Abr',

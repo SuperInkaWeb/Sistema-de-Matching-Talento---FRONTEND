@@ -88,3 +88,35 @@
     grid-template-columns: 1fr;
   }
 }
+
+.recommendations__limit {
+  background: linear-gradient(135deg, #f0f0ff, #fff);
+  border: 2px solid var(--accent);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recommendations__limit p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.recommendations__upgrade-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 24px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s;
+  align-self: center;
+}
+
+.recommendations__upgrade-btn:hover { background: var(--accent-2); }

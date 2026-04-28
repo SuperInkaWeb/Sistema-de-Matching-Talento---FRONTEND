@@ -72,6 +72,7 @@ export default function Footer() {
                         <Link to="/" className="footer__link">Vacantes</Link>
                         <Link to="/registro-empresa" className="footer__link">Crear cuenta empresa</Link>
                         <Link to="/login" className="footer__link">Iniciar sesión</Link>
+                        <Link to="/premium" className="footer__link">⭐ Plan Premium</Link>
                     </div>
 
                     <div className="footer__links">
@@ -135,7 +136,7 @@ export default function Footer() {
                 </div>
 
                 <div className="footer__bottom">
-                    <p>© {new Date().getFullYear()} Humatchy. Todos los derechos reservados.</p>
+                    <p>© {new Date().getFullYear()} QORIBEX. Todos los derechos reservados.</p>
                 </div>
             </div>
         </footer>

@@ -1,6 +1,24 @@
+import { useNavigate } from 'react-router-dom'
 import './VacancyRecommendations.css'
 
-export default function VacancyRecommendations({ recommendations, vacancies, loading, onSelect }) {
+export default function VacancyRecommendations({ recommendations, vacancies, loading, limitReached, onSelect }) {
+  const navigate = useNavigate()
+
+  if (limitReached) {
+    return (
+      <div className="recommendations-section">
+        <h2 className="recommendations__title">✨ Recomendadas para ti</h2>
+        <div className="recommendations__limit">
+          <p>⭐ Has usado tu recomendación diaria gratuita.</p>
+          <p>Actualiza a <strong>Premium</strong> para acceso ilimitado.</p>
+          <button className="recommendations__upgrade-btn" onClick={() => navigate('/premium')}>
+            Ver plan Premium
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (!loading && recommendations.length === 0) return null
 
   return (
