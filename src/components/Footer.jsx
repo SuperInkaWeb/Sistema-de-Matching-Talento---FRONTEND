@@ -135,7 +135,7 @@ export default function Footer() {
                 </div>
 
                 <div className="footer__bottom">
-                    <p>© {new Date().getFullYear()} Humatchy. Todos los derechos reservados.</p>
+                    <p>© {new Date().getFullYear()} QORIBEX. Todos los derechos reservados.</p>
                 </div>
             </div>
         </footer>
