@@ -8,7 +8,7 @@ import {
   API_URL,
   buildHeaders
 } from '../services/auth.service'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import InviteModal from '../components/InviteModal'
 import EducationSection from '../components/EducationSection'
@@ -37,15 +37,16 @@ export default function Profile() {
   const [showInviteModal, setShowInviteModal] = useState(false)
   const [education, setEducation] = useState([])
   const [token, setToken] = useState(null)
+  const [isPremium, setIsPremium] = useState(false)
 
   useEffect(() => {
     if (role === 'company') navigate('/dashboard', { replace: true })
     else if (role === 'admin') navigate('/admin', { replace: true })
   }, [role])
 
-useEffect(() => {
-  getAccessTokenSilently().then(t => setToken(t)).catch(() => {})
-}, [])
+  useEffect(() => {
+    getAccessTokenSilently().then(t => setToken(t)).catch(() => { })
+  }, [])
 
   useEffect(() => { fetchProfile(), fetchEducation() }, [])
 
@@ -79,9 +80,16 @@ useEffect(() => {
           const cvData = await cvRes.json()
           setCvUrl(cvData.signedUrl)
         }
-      } catch (err) {
-        console.error(err)
-      }
+      } catch { }
+      try {
+        const subRes = await fetch(`${API_URL}/subscription/me`, {
+          headers: buildHeaders(token)
+        })
+        if (subRes.ok) {
+          const subData = await subRes.json()
+          setIsPremium(subData.isPremium)
+        }
+      } catch { }
     } catch (err) {
       console.error(err)
     } finally {
@@ -113,13 +121,19 @@ useEffect(() => {
 
   const handleSave = async (e) => {
     e.preventDefault()
-    setSaving(true)
     setError(null)
+
+    if (!form.first_name.trim() || !form.last_name.trim()) {
+      setError('El nombre y apellido son obligatorios.')
+      return
+    }
+
+    setSaving(true)
     try {
       const token = await getAccessTokenSilently()
       const res = await fetch(`${API_URL}/candidate/me/edit`, {
         method: 'PUT',
-        headers: buildHeaders(token),
+        headers: { ...buildHeaders(token), 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, experience_years: parseInt(form.experience_years) || 0 }),
       })
       if (!res.ok) {
@@ -230,7 +244,15 @@ useEffect(() => {
                 {profile.user.role === 'company' ? '🏢 Empresa' : '👤 Candidato'}
               </span>
             )}
-            
+            {isPremium && (
+              <span className="profile-premium-badge">⭐ Premium</span>
+            )}
+            {!isPremium && (
+              <Link to="/premium" className="profile-upgrade-btn">
+                ⭐ Actualizar a Premium
+              </Link>
+            )}
+
             <PointsBadge token={token} showHistory={true} />
 
             <div className="profile-resume">
@@ -280,17 +302,31 @@ useEffect(() => {
             <div className="profile-form-header">
               <h1>Mi Perfil</h1>
               <p>Mantén tu información actualizada para destacar ante los empleadores.</p>
+              <div className="profile-form-notice">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
+                  <path d="M8 4.5v4M8 10.5v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+                <span>
+                  Solo <strong>nombre y apellido</strong> son obligatorios.
+                  El resto puedes completarlo cuando lo consideres necesario.
+                </span>
+              </div>
             </div>
 
             <form className="profile-form" onSubmit={handleSave}>
               <div className="form-grid">
                 <div className="form-field">
-                  <label className="form-label">Nombre</label>
+                  <label className="form-label">
+                    Nombre <span className="form-label__required">*</span>
+                  </label>
                   <input className="form-input" type="text" name="first_name"
                     value={form.first_name} onChange={handleChange} placeholder="Tu nombre" />
                 </div>
                 <div className="form-field">
-                  <label className="form-label">Apellido</label>
+                  <label className="form-label">
+                    Apellido <span className="form-label__required">*</span>
+                  </label>
                   <input className="form-input" type="text" name="last_name"
                     value={form.last_name} onChange={handleChange} placeholder="Tu apellido" />
                 </div>

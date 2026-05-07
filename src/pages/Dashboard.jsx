@@ -19,6 +19,7 @@ import OwnerInfo from '../components/OwnerInfo'
 import InviteModal from '../components/InviteModal'
 import PointsBadge from '../components/PointsBadge'
 import CandidateProfileModal from '../components/CandidateProfileModal'
+import { Link } from 'react-router-dom'
 import './Dashboard.css'
 
 const TABS = ['Resumen', 'Vacantes', 'Postulantes', 'Mi Empresa']
@@ -59,6 +60,7 @@ export default function Dashboard() {
     const [showInviteModal, setShowInviteModal] = useState(false)
     const [pointsToken, setPointsToken] = useState(null)
     const [selectedCandidate, setSelectedCandidate] = useState(null)
+    const [isPremium, setIsPremium] = useState(false)
 
     useEffect(() => { loadAll() }, [])
 
@@ -91,6 +93,17 @@ export default function Dashboard() {
                     setOwnerInfo(ownerData)
                 }
             } catch { }
+
+            try {
+                const subRes = await fetch(`${API_URL}/subscription/me`, {
+                    headers: buildHeaders(token)
+                })
+                if (subRes.ok) {
+                    const subData = await subRes.json()
+                    setIsPremium(subData.isPremium)
+                }
+            } catch { }
+
         } finally {
             setLoading(false)
         }
@@ -258,6 +271,25 @@ export default function Dashboard() {
                     </div>
 
                     <PointsBadge token={pointsToken} />
+
+                    {isPremium ? (
+                        <span style={{
+                            background: 'linear-gradient(135deg, #1E2EB8, #E8472A)',
+                            color: '#fff', borderRadius: '20px', padding: '6px 14px',
+                            fontSize: '0.82rem', fontWeight: 700
+                        }}>
+                            ⭐ Premium
+                        </span>
+                    ) : (
+                        <Link to="/premium" style={{
+                            background: 'var(--surface)', color: 'var(--text-secondary)',
+                            border: '1.5px dashed #ccc', borderRadius: '20px',
+                            padding: '6px 14px', fontSize: '0.82rem', fontWeight: 600,
+                            textDecoration: 'none'
+                        }}>
+                            ⭐ Activar Premium
+                        </Link>
+                    )}
 
                     <button className="dash-btn dash-btn--ghost" onClick={() => setShowInviteModal(true)}>
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -508,6 +540,7 @@ export default function Dashboard() {
                                                             pending: { label: 'En proceso', cls: 'dash-status--pending' },
                                                             accepted: { label: 'Aceptado', cls: 'dash-status--accepted' },
                                                             rejected: { label: 'Rechazado', cls: 'dash-status--rejected' },
+                                                            cancelled: { label: 'Cancelada', cls: 'dash-status--cancelled' },
                                                         }
                                                         const s = statusMap[candidate.status] || statusMap.pending
                                                         return <span className={`dash-status ${s.cls}`}>{s.label}</span>

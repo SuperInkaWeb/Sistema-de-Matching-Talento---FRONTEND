@@ -6,6 +6,9 @@
   transition: all var(--transition);
   position: relative;
   overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .vacancy-card::before {
@@ -33,7 +36,7 @@
 
 .vacancy-card__header {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 12px;
   margin-bottom: 16px;
 }
@@ -108,6 +111,7 @@
   color: var(--text-secondary);
   line-height: 1.65;
   margin-bottom: 12px;
+  flex: 1;
 }
 
 .vacancy-card__desc--clamp {
@@ -121,7 +125,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  margin-top: 20px;
+  margin-top: auto;
   padding-top: 16px;
   border-top: 1px solid var(--border);
 }

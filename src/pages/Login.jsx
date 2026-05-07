@@ -1,15 +1,51 @@
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useAuth0 } from '@auth0/auth0-react'
 import './Login.css'
 
 export default function Login() {
   const { isAuthenticated, loginWithGoogle, loginWithLinkedIn, loginWithMicrosoft } = useAuth()
+  const { loginWithRedirect } = useAuth0()
   const navigate = useNavigate()
+  const [mode, setMode] = useState('login')
+  const [form, setForm] = useState({ email: '', password: '', confirmPassword: '' })
+  const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
 
   useEffect(() => {
     if (isAuthenticated) navigate('/profile')
   }, [isAuthenticated, navigate])
+
+  const handleEmailSubmit = async (e) => {
+    e.preventDefault()
+    setError(null)
+
+    if (mode === 'register' && form.password !== form.confirmPassword) {
+      setError('Las contraseñas no coinciden')
+      return
+    }
+    if (form.password.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres')
+      return
+    }
+
+    setLoading(true)
+    try {
+      await loginWithRedirect({
+        authorizationParams: {
+          connection: 'Username-Password-Authentication',
+          login_hint: form.email,
+          screen_hint: mode === 'register' ? 'signup' : undefined,
+        }
+      })
+    } catch {
+      setError('Error al procesar. Intenta de nuevo.')
+      setLoading(false)
+    }
+  }
 
   return (
     <main className="login-page">
@@ -27,6 +63,122 @@ export default function Login() {
           <p className="login-card__subtitle">Conecta con las mejores oportunidades.</p>
         </div>
 
+        {/* Tabs */}
+        <div className="login-tabs">
+          <button
+            className={`login-tab ${mode === 'login' ? 'login-tab--active' : ''}`}
+            onClick={() => {
+              setMode('login')
+              setError(null)
+              setForm({ email: '', password: '', confirmPassword: '' }) // ← agrega
+            }}
+          >
+            Iniciar sesión
+          </button>
+          <button
+            className={`login-tab ${mode === 'register' ? 'login-tab--active' : ''}`}
+            onClick={() => {
+              setMode('register')
+              setError(null)
+              setForm({ email: '', password: '', confirmPassword: '' }) // ← agrega
+            }}
+          >
+            Registrarse
+          </button>
+        </div>
+        {/* Form email/contraseña */}
+        <form className="login-form" onSubmit={handleEmailSubmit}>
+          <div className="form-field">
+            <label className="form-label">Correo electrónico</label>
+            <input className="form-input" type="email" required
+              placeholder="tu@correo.com"
+              value={form.email}
+              onChange={e => setForm(p => ({ ...p, email: e.target.value }))} />
+          </div>
+          <div className="form-field">
+            <label className="form-label">Contraseña</label>
+            <div className="login-password-wrapper">
+              <input
+                className="form-input login-password-input"
+                type={showPassword ? 'text' : 'password'}
+                required
+                placeholder="Mínimo 8 caracteres"
+                value={form.password}
+                onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
+              />
+              <button
+                type="button"
+                className="login-password-toggle"
+                onClick={() => setShowPassword(p => !p)}
+                tabIndex={-1}
+              >
+                {showPassword ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
+                    <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                  </svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                )}
+              </button>
+            </div>
+          </div>
+          {mode === 'register' && (
+            <div className="form-field">
+              <label className="form-label">Confirmar contraseña</label>
+              <div className="login-password-wrapper">
+                <input
+                  className="form-input login-password-input"
+                  type={showConfirm ? 'text' : 'password'}
+                  required
+                  placeholder="Repite tu contraseña"
+                  value={form.confirmPassword}
+                  onChange={e => setForm(p => ({ ...p, confirmPassword: e.target.value }))}
+                />
+                <button
+                  type="button"
+                  className="login-password-toggle"
+                  onClick={() => setShowConfirm(p => !p)}
+                  tabIndex={-1}
+                >
+                  {showConfirm ? (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
+                      <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
+                      <line x1="1" y1="1" x2="23" y2="23" />
+                    </svg>
+                  ) : (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+          {error && (
+            <div className="form-error">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
+                <path d="M8 4.5v4M8 10.5v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+              {error}
+            </div>
+          )}
+          <button type="submit" className="login-btn-primary" disabled={loading}>
+            {loading ? 'Procesando...' : mode === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}
+          </button>
+        </form>
+
+        {/* Divider */}
+        <div className="login-divider"><span>o continúa con</span></div>
+
+        {/* Social */}
         <div className="login-card__providers">
           <button className="login-provider login-provider--google" onClick={loginWithGoogle}>
             <svg className="login-provider__icon" viewBox="0 0 24 24">
@@ -56,15 +208,20 @@ export default function Login() {
           </button>
         </div>
 
-        <p className="login-empresa-link">
-          ¿Quieres registrar tu empresa?{' '}
-          <button className="login-empresa-link__btn" onClick={() => navigate('/registro-empresa')}>
-            Crear cuenta empresa
-          </button>
-        </p>
+        {/* Links empresa */}
+        <div className="login-links">
+          <p className="login-empresa-link">
+            ¿Quieres registrar tu empresa?{' '}
+            <button className="login-empresa-link__btn" onClick={() => navigate('/registro-empresa')}>
+              Crear cuenta empresa
+            </button>
+          </p>
+        </div>
 
         <p className="login-card__footer">
-          Al ingresar, aceptas nuestros <a href="#">Términos de uso</a> y <a href="#">Política de privacidad</a>.
+          Al ingresar, aceptas nuestros{' '}
+          <a href="/terminos">Términos de uso</a> y{' '}
+          <a href="/privacidad">Política de privacidad</a>.
         </p>
       </div>
 

@@ -34,6 +34,9 @@ export default function Navbar() {
           <Link to="/" className={`navbar__link ${location.pathname === '/' ? 'navbar__link--active' : ''}`}>
             Vacantes
           </Link>
+          <Link to="/premium" className={`navbar__link ${location.pathname === '/premium' ? 'navbar__link--active' : ''}`}>
+            ⭐ Premium
+          </Link>
           {user && role === 'admin' && (
             <Link to="/admin" className={`navbar__link ${location.pathname === '/admin' ? 'navbar__link--active' : ''}`}>
               Admin Panel
@@ -53,11 +56,6 @@ export default function Navbar() {
             <Link to="/dashboard" className={`navbar__link ${location.pathname === '/dashboard' ? 'navbar__link--active' : ''}`}>
               Dashboard
             </Link>
-          )}
-          {user && (
-            <Link to="/premium" className={`navbar__link ${location.pathname === '/premium' ? 'navbar__link--active' : ''}`}>
-            ⭐ Premium
-          </Link>
           )}
         </nav>
 

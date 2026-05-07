@@ -1,0 +1,97 @@
+.postulacion-modal { max-width: 540px; }
+
+.postulacion-modal__company {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-top: 2px;
+}
+
+.postulacion-modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.postulacion-modal__status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.postulacion-modal__date {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.postulacion-modal__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.postulacion-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.postulacion-modal__label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.postulacion-modal__value {
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
+.postulacion-modal__section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.postulacion-modal__desc {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.7;
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.postulacion-modal__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.apply-cancel-btn {
+  background: transparent;
+  border: 1.5px solid #e11d48;
+  color: #e11d48;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-body);
+}
+
+.apply-cancel-btn:hover { background: #e11d48; color: #fff; }
+
+.apply-cancel-btn--full {
+  width: 100%;
+  padding: 12px;
+  font-size: 0.9rem;
+}

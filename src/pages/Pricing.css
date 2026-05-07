@@ -277,9 +277,9 @@
   line-height: 1.6;
 }
 
-.pricing-demo-modal { max-width: 440px; }
+.pricing-pago-modal { max-width: 440px; }
 
-.pricing-demo__plan {
+.pricing-pago__plan {
   background: var(--surface);
   border-radius: var(--radius-md);
   padding: 16px;
@@ -287,9 +287,9 @@
   text-align: center;
 }
 
-.pricing-demo__plan p { color: var(--text-secondary); font-size: 0.9rem; }
+.pricing-pago__plan p { color: var(--text-secondary); font-size: 0.9rem; }
 
-.pricing-demo__price {
+.pricing-pago__price {
   font-family: var(--font-display);
   font-size: 1.8rem !important;
   font-weight: 800 !important;
@@ -297,17 +297,26 @@
   margin-top: 4px;
 }
 
-.pricing-demo__form {
+.pricing-pago__form {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.pricing-demo__note {
+.pricing-pago__note {
   font-size: 0.82rem;
   color: var(--text-muted);
   text-align: center;
   background: #fff8e1;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.pricing-pago__secure {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: var(--surface);
   border-radius: 8px;
   padding: 8px;
 }

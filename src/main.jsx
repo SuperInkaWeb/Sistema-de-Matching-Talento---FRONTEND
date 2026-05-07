@@ -30,8 +30,11 @@ function Auth0ProviderWithNavigate() {
       clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
       authorizationParams={authParams}
       onRedirectCallback={(appState) => {
-        navigate(appState?.returnTo ?? '/profile', { replace: true })
+        navigate(appState?.returnTo ?? '/profile')
       }}
+      cacheLocation="localstorage"  
+      useRefreshTokens={true} 
+      useRefreshTokensFallback={true}
     >
       <AuthProvider>
         <Navbar />

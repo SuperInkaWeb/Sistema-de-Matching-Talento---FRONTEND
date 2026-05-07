@@ -16,17 +16,19 @@ export default function Pricing() {
   const [billing, setBilling] = useState('monthly')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
-  const [showDemo, setShowDemo] = useState(false)
+  const [showPago, setShowPago] = useState(false)
+  const [cardForm, setCardForm] = useState({ number: '', name: '', expiry: '', cvv: '' })
+  const [payError, setPayError] = useState(null)
 
   const handleActivate = async () => {
     if (!isAuthenticated) {
       navigate('/login')
       return
     }
-    setShowDemo(true)
+    setShowPago(true)
   }
 
-  const handleDemoPayment = async () => {
+  const handlePayment = async () => {
     setLoading(true)
     try {
       const token = await getAccessTokenSilently()
@@ -38,7 +40,7 @@ export default function Pricing() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
       setSuccess(true)
-      setShowDemo(false)
+      setShowPago(false)
       setTimeout(() => navigate(role === 'company' ? '/dashboard' : '/profile'), 2000)
     } catch (err) {
       console.error(err)
@@ -202,53 +204,102 @@ export default function Pricing() {
         </div>
       </div>
 
-      {/* Demo modal */}
-      {showDemo && (
-        <div className="modal-overlay" onClick={() => setShowDemo(false)}>
-          <div className="modal pricing-demo-modal" onClick={e => e.stopPropagation()}>
+      {/* Pago modal */}
+      {showPago && (
+        <div className="modal-overlay" onClick={() => setShowPago(false)}>
+          <div className="modal pricing-pago-modal" onClick={e => e.stopPropagation()}>
             <div className="modal__header">
-              <h2 className="modal__title">💳 Pago de demostración</h2>
-              <button className="modal__close" onClick={() => setShowDemo(false)}>✕</button>
+              <h2 className="modal__title">💳 Pago seguro con Pay-me</h2>
+              <button className="modal__close" onClick={() => setShowPago(false)}>✕</button>
             </div>
 
-            <div className="pricing-demo__plan">
-              <p>Plan seleccionado: <strong>Premium {billing === 'annual' ? 'Anual' : 'Mensual'}</strong></p>
-              <p className="pricing-demo__price">
+            <div className="pricing-pago__plan">
+              <p>Plan: <strong>Premium {billing === 'annual' ? 'Anual' : 'Mensual'}</strong></p>
+              <p className="pricing-pago__price">
                 S/ {billing === 'monthly' ? MONTHLY_PRICE.toFixed(2) : ANNUAL_PRICE.toFixed(2)}
                 {billing === 'annual' ? '/año' : '/mes'}
               </p>
             </div>
 
-            <div className="pricing-demo__form">
+            <form className="pricing-pago__form" onSubmit={async (e) => {
+              e.preventDefault()
+              setLoading(true)
+              setPayError(null)
+              try {
+                const token = await getAccessTokenSilently()
+                const res = await fetch(`${API_URL}/subscription/activate`, {
+                  method: 'POST',
+                  headers: { ...buildHeaders(token), 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    billingCycle: billing,
+                    cardNumber: cardForm.number,
+                    expiry: cardForm.expiry,
+                    cvv: cardForm.cvv,
+                    cardName: cardForm.name,
+                  }),
+                })
+                const data = await res.json()
+                if (!res.ok) throw new Error(data.error || 'Error en el pago')
+                setSuccess(true)
+                setShowPago(false)
+                setTimeout(() => navigate(role === 'company' ? '/dashboard' : '/profile'), 2000)
+              } catch (err) {
+                setPayError(err.message)
+              } finally {
+                setLoading(false)
+              }
+            }}>
               <div className="form-field">
                 <label className="form-label">Número de tarjeta</label>
-                <input className="form-input" defaultValue="4111 1111 1111 1111" disabled />
+                <input className="form-input" required maxLength={19}
+                  placeholder="4111 1111 1111 1111"
+                  value={cardForm.number}
+                  onChange={e => {
+                    const val = e.target.value.replace(/\D/g, '').slice(0, 16)
+                    const formatted = val.match(/.{1,4}/g)?.join(' ') || val
+                    setCardForm(p => ({ ...p, number: formatted }))
+                  }} />
+              </div>
+              <div className="form-field">
+                <label className="form-label">Nombre en la tarjeta</label>
+                <input className="form-input" required
+                  placeholder="PEDRO MIRANDA"
+                  value={cardForm.name}
+                  onChange={e => setCardForm(p => ({ ...p, name: e.target.value.toUpperCase() }))} />
               </div>
               <div className="form-grid">
                 <div className="form-field">
                   <label className="form-label">Vencimiento</label>
-                  <input className="form-input" defaultValue="12/28" disabled />
+                  <input className="form-input" required maxLength={5}
+                    placeholder="MM/AA"
+                    value={cardForm.expiry}
+                    onChange={e => {
+                      const val = e.target.value.replace(/\D/g, '').slice(0, 4)
+                      const formatted = val.length > 2 ? `${val.slice(0, 2)}/${val.slice(2)}` : val
+                      setCardForm(p => ({ ...p, expiry: formatted }))
+                    }} />
                 </div>
                 <div className="form-field">
                   <label className="form-label">CVV</label>
-                  <input className="form-input" defaultValue="123" disabled />
+                  <input className="form-input" required maxLength={4}
+                    placeholder="123" type="password"
+                    value={cardForm.cvv}
+                    onChange={e => setCardForm(p => ({ ...p, cvv: e.target.value.replace(/\D/g, '').slice(0, 4) }))} />
                 </div>
               </div>
-              <div className="form-field">
-                <label className="form-label">Nombre en la tarjeta</label>
-                <input className="form-input" defaultValue="DEMO USER" disabled />
+
+              {payError && (
+                <div className="form-error">✗ {payError}</div>
+              )}
+
+              <div className="pricing-pago__secure">
+                🔒 Pago procesado de forma segura por <strong>Pay-me / Alignet</strong>
               </div>
-              <p className="pricing-demo__note">
-                🔒 Modo demo — no se realizará ningún cargo real
-              </p>
-              <button
-                className="form-save-btn"
-                onClick={handleDemoPayment}
-                disabled={loading}
-              >
-                {loading ? 'Procesando...' : `Confirmar pago S/ ${billing === 'monthly' ? MONTHLY_PRICE.toFixed(2) : ANNUAL_PRICE.toFixed(2)}`}
+
+              <button type="submit" className="form-save-btn" disabled={loading}>
+                {loading ? 'Procesando...' : `Pagar S/ ${billing === 'monthly' ? MONTHLY_PRICE.toFixed(2) : ANNUAL_PRICE.toFixed(2)}`}
               </button>
-            </div>
+            </form>
           </div>
         </div>
       )}

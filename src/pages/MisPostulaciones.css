@@ -107,3 +107,31 @@
   font-size: 0.8rem;
   font-weight: 600;
 }
+
+.status--cancelled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.apply-cancel-btn {
+  background: transparent;
+  border: 1.5px solid #e11d48;
+  color: #e11d48;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-body);
+}
+
+.apply-cancel-btn:hover {
+  background: #e11d48;
+  color: #fff;
+}

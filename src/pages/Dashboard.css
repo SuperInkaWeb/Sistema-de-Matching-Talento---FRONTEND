@@ -198,16 +198,25 @@
 .dash-status--pending {
   background: #fff8e1;
   color: #f59e0b;
+  border: 1px solid #e5e7eb;
 }
 
 .dash-status--accepted {
   background: #e8f5e9;
   color: #16a34a;
+  border: 1px solid #e5e7eb;
 }
 
 .dash-status--rejected {
   background: #fce4ec;
   color: #e11d48;
+  border: 1px solid #e5e7eb;
+}
+
+.dash-status--cancelled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  border: 1px solid #e5e7eb;
 }
 
 .dash-status--clickable {

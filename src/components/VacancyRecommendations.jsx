@@ -1,8 +1,23 @@
 import { useNavigate } from 'react-router-dom'
 import './VacancyRecommendations.css'
 
-export default function VacancyRecommendations({ recommendations, vacancies, loading, limitReached, onSelect }) {
+export default function VacancyRecommendations({ recommendations, vacancies, loading, limitReached, profileIncomplete, onSelect }) {
   const navigate = useNavigate()
+
+  if (profileIncomplete) {
+    return (
+      <div className="recommendations-section">
+        <h2 className="recommendations__title">✨ Recomendadas para ti</h2>
+        <div className="recommendations__limit">
+          <p>📝 Completa tu perfil para recibir recomendaciones personalizadas.</p>
+          <p>Agrega tus <strong>habilidades e idiomas</strong> para que la IA pueda encontrar las mejores vacantes para ti.</p>
+          <button className="recommendations__upgrade-btn" onClick={() => navigate('/profile')}>
+            Completar mi perfil
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   if (limitReached) {
     return (

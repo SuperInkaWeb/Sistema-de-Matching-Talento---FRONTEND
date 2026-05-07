@@ -74,7 +74,11 @@ export function AuthProvider({ children }) {
       logout,
       getToken,
     }}>
-      {!isLoading && children}
+      {isLoading ? (
+      <div className="route-loading">
+        <div className="route-loading__spinner" />
+      </div>
+    ) : children}
     </AuthContext.Provider>
   )
 }

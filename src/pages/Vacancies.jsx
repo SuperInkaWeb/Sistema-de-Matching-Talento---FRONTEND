@@ -36,6 +36,7 @@ export default function Vacancies() {
   const [recommendations, setRecommendations] = useState([])
   const [loadingRecs, setLoadingRecs] = useState(false)
   const [limitReached, setLimitReached] = useState(false)
+  const [profileIncomplete, setProfileIncomplete] = useState(false)
 
   useEffect(() => { loadVacancies() }, [])
 
@@ -47,15 +48,19 @@ export default function Vacancies() {
     }
   }, [isAuthenticated, role])
 
-  const loadVacancies = async () => {
+  const loadVacancies = async (retries = 2) => {
     try {
       setLoading(true)
-      setError(null)
-      const token = getToken ? await getToken() : null
-      const data = await getVacancies(token)
-      setVacancies(data || [])
-    } catch {
-      setError('No se pudieron cargar las vacantes.')
+      const res = await fetch(`${API_URL}/vacancy/all`)
+      if (!res.ok) throw new Error('Error al cargar vacantes')
+      const data = await res.json()
+      setVacancies(data)
+    } catch (err) {
+      if (retries > 0) {
+        setTimeout(() => loadVacancies(retries - 1), 1000)
+      } else {
+        console.error('No se pudieron cargar las vacantes:', err.message)
+      }
     } finally {
       setLoading(false)
     }
@@ -76,38 +81,47 @@ export default function Vacancies() {
     setLoadingRecs(true)
     try {
       const token = await getAccessTokenSilently()
-      const res = await fetch (getRecommendedVacancies(token), {
-      headers: buildHeaders(token)
-    })
-    const data = await res.json()
-    if (res.status === 429) {
-      setRecommendations([])
-      setLimitReached(true)
-      return
+      const res = await fetch(`${API_URL}/ai/recommend/vacancies`, {
+        headers: buildHeaders(token)
+      })
+      const data = await res.json()
+
+      if (res.status === 429) {
+        setRecommendations([])
+        setLimitReached(true)
+        return
+      }
+
+      if (data.message === 'PROFILE_INCOMPLETE') {
+        setRecommendations([])
+        setProfileIncomplete(true)
+        return
+      }
+
+      setRecommendations(data.recommendations || [])
+      setLimitReached(false)
+      setProfileIncomplete(false)
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoadingRecs(false)
     }
-    setRecommendations(data.recommendations || [])
-    setLimitReached(false)
-  } catch (err) {
-    console.error(err)
-  } finally {
-    setLoadingRecs(false)
   }
-}
 
   const loadMyApplications = async () => {
-  try {
-    const token = await getToken()
-    const res = await fetch(`${API_URL}/apply/myvacancies`, {
-      headers: buildHeaders(token)
-    })
-    if (res.ok) {
-      const data = await res.json()
-      const appliedMap = {}
-      data.forEach(app => { appliedMap[app.vacancy_id] = true })
-      setApplied(appliedMap)
-    }
-  } catch {}
-}
+    try {
+      const token = await getToken()
+      const res = await fetch(`${API_URL}/apply/myvacancies`, {
+        headers: buildHeaders(token)
+      })
+      if (res.ok) {
+        const data = await res.json()
+        const appliedMap = {}
+        data.forEach(app => { appliedMap[app.vacancy_id] = true })
+        setApplied(appliedMap)
+      }
+    } catch { }
+  }
 
   const handleApply = async (vacancyId) => {
     if (!isAuthenticated) return
@@ -225,6 +239,7 @@ export default function Vacancies() {
               vacancies={vacancies}
               loading={loadingRecs}
               limitReached={limitReached}
+              profileIncomplete={profileIncomplete}
               onSelect={setSelectedVacancy}
             />
           )}
