@@ -229,7 +229,7 @@ src/
 
 Beneficios: IA ilimitada · puntos x1.3 · mayor visibilidad · badge Premium ⭐
 
-Integración de pagos: **Pay-me / Alignet** (adquirente directo Perú)
+Integración de pagos: **[Pay-me / Alignet](https://pay-me.com)** (adquirente directo Perú)
 
 ---
 
