@@ -1,4 +1,4 @@
-# Humantyx Jobs — Frontend
+# Humatchy — Frontend
 
 > Portal de empleo con inteligencia artificial para el mercado peruano.
 
@@ -23,44 +23,38 @@
 
 - Node.js >= 18
 - Cuenta en [Auth0](https://auth0.com)
-- Backend de Humantyx corriendo en `localhost:4000`
+- Backend de Humatchy corriendo en `localhost:4000`
 
 ---
 
 ## Instalación
 
 ```bash
-# Clonar el repositorio
-git clone https://github.com/tu-usuario/humantyx-frontend.git
-cd humantyx-frontend
-
-# Instalar dependencias
+git clone https://github.com/tu-usuario/humatchy-frontend.git
+cd humatchy-frontend
 npm install
-
-# Configurar variables de entorno
 cp .env.example .env
 # Editar .env con tus valores
+npm run dev
 ```
 
 ---
 
 ## Variables de Entorno
 
-Crea un archivo `.env` en la raíz del proyecto:
-
 ```env
 VITE_AUTH0_DOMAIN=dev-xxxxxxxx.us.auth0.com
 VITE_AUTH0_CLIENT_ID=tu_client_id
-VITE_AUTH0_AUDIENCE=https://[tu.0auth-api]
-VITE_API_URL=https://[localhost:4000].onrender.com
+VITE_AUTH0_AUDIENCE=https://humatchy-api
+VITE_API_URL=http://localhost:4000
 ```
 
 ---
 
 ## Configuración Auth0
 
-1. Crear una aplicación **Single Page Application** en Auth0
-2. Configurar las siguientes URLs:
+1. Crear aplicación **Single Page Application** en Auth0
+2. Configurar URLs:
 
 | Campo | Valor (desarrollo) |
 |---|---|
@@ -68,7 +62,9 @@ VITE_API_URL=https://[localhost:4000].onrender.com
 | Allowed Logout URLs | `http://localhost:5173` |
 | Allowed Web Origins | `http://localhost:5173` |
 
-3. Agregar un **Action** en `Triggers > Login > post-login`:
+3. Habilitar conexiones: `google-oauth2`, `linkedin`, `windowslive`, `Username-Password-Authentication`
+4. En `Username-Password-Authentication` → Settings → desactivar **Disable Sign Ups**
+5. Agregar **Action** en `Triggers → Login → post-login`:
 
 ```javascript
 exports.onExecutePostLogin = async (event, api) => {
@@ -94,43 +90,45 @@ npm run preview  # Preview del build
 
 ```
 src/
-├── components/          # Componentes reutilizables
+├── components/
 │   ├── Navbar.jsx
 │   ├── Footer.jsx
+│   ├── ScrollToTop.jsx
 │   ├── VacancyCard.jsx
 │   ├── VacancyModal.jsx
 │   ├── VacancyRecommendations.jsx
 │   ├── EducationSection.jsx
 │   ├── CandidateProfileModal.jsx
+│   ├── PostulacionModal.jsx
 │   ├── AdminAnalytics.jsx
 │   ├── PointsBadge.jsx
 │   ├── InviteModal.jsx
-│   ├── OwnerInfo.jsx
-│   └── ScrollToTop.jsx
+│   └── OwnerInfo.jsx
 ├── pages/
-│   ├── Vacancies.jsx        # Página principal de vacantes
-│   ├── Profile.jsx          # Perfil del candidato
-│   ├── Dashboard.jsx        # Dashboard de empresa
-│   ├── AdminDashboard.jsx   # Panel administrativo
-│   ├── MisPostulaciones.jsx # Postulaciones del candidato
-│   ├── Login.jsx            # Página de login
-│   ├── RegisterEmpresa.jsx  # Registro público de empresa
-│   ├── Registro.jsx         # Aceptar invitación
+│   ├── Vacancies.jsx         # Página principal
+│   ├── Profile.jsx           # Perfil candidato
+│   ├── Dashboard.jsx         # Dashboard empresa
+│   ├── AdminDashboard.jsx    # Panel admin
+│   ├── MisPostulaciones.jsx  # Postulaciones candidato
+│   ├── Login.jsx             # Login email/OAuth
+│   ├── RegisterEmpresa.jsx   # Registro empresa pública
+│   ├── Registro.jsx          # Aceptar invitación
+│   ├── Pricing.jsx           # Planes Premium (Pay-me)
 │   ├── Terminos.jsx
 │   ├── Privacidad.jsx
 │   ├── FAQ.jsx
 │   └── Acerca.jsx
 ├── context/
-│   └── AuthContext.jsx      # Rol, token, funciones de auth
+│   └── AuthContext.jsx
 ├── services/
-│   ├── auth.service.js      # API_URL, buildHeaders
+│   ├── auth.service.js
 │   ├── vacancy.service.js
 │   ├── company.service.js
 │   ├── ai.service.js
 │   └── admin.services.js
 ├── routes/
 │   └── ProtectedRoute.jsx
-├── main.jsx                 # BrowserRouter > Auth0Provider > App
+├── main.jsx
 └── AppRoutes.jsx
 ```
 
@@ -142,12 +140,13 @@ src/
 |---|---|---|
 | `/` | Vacancies | Público |
 | `/login` | Login | Público |
-| `/registro` | Registro | Público (invitaciones) |
+| `/registro?token=X` | Registro | Público |
 | `/registro-empresa` | RegisterEmpresa | Público |
 | `/profile` | Profile | candidate |
 | `/mis-postulaciones` | MisPostulaciones | candidate |
 | `/dashboard` | Dashboard | company |
 | `/admin` | AdminDashboard | admin |
+| `/premium` | Pricing | Autenticado |
 | `/terminos` | Terminos | Público |
 | `/privacidad` | Privacidad | Público |
 | `/faq` | FAQ | Público |
@@ -159,27 +158,109 @@ src/
 
 | Rol | Descripción |
 |---|---|
-| `candidate` | Busca empleo, postula vacantes, sube CV |
-| `company` | Publica vacantes, gestiona postulantes |
-| `admin` | Acceso total al sistema |
+| `candidate` | Busca empleo, postula vacantes, sube CV, invita hasta 5 personas |
+| `company` | Publica vacantes, gestiona postulantes, invita candidatos y empresas |
+| `admin` | Acceso total, invita cualquier rol |
+
+---
+
+## Funcionalidades Principales
+
+### Candidato
+- Perfil: datos personales, habilidades, idiomas, CV PDF, estudios académicos
+- Solo nombre y apellido son obligatorios
+- Postularse y cancelar postulaciones propias
+- Ver estado de postulaciones con modal de detalle
+- Recomendaciones IA (1/día gratis, ilimitadas con Premium)
+- Sistema de puntos mensual con niveles
+- Invitar hasta 5 personas
+
+### Empresa
+- Dashboard: Resumen, Vacantes, Postulantes, Mi Empresa
+- Crear/editar/eliminar vacantes
+- Ver perfiles de postulantes (modal clickeable en toda la card)
+- Aceptar/rechazar desde lista y recomendaciones IA
+- Sistema de puntos por vacantes y hitos de postulantes
+- Invitar candidatos y empresas
+
+### Admin
+- KPIs y gráficos Recharts en tiempo real
+- Gestión de candidatos, empresas, vacantes
+- Aprobar/rechazar solicitudes de empresa
+- Invitar cualquier rol (candidate, company, admin)
+
+---
+
+## Sistema de Puntos (mensual)
+
+### Candidatos
+| Acción | Puntos |
+|---|---|
+| Postularse a vacante | +5 |
+| Subir CV | +50 (1×/mes) |
+| Completar perfil 100% | +50 (1×/mes) |
+| Invitar usuario | +20 |
+
+### Empresas
+| Acción | Puntos |
+|---|---|
+| Crear vacante | +30 |
+| Llegar a 5/10/20 postulantes | +20 c/u |
+| Cada 50 postulantes adicionales | +100 |
+
+**Premium multiplica todos los puntos x1.3**
+
+### Niveles
+| Nivel | Puntos |
+|---|---|
+| 🌱 Nuevo | 0 – 49 |
+| 🔥 Activo | 50 – 99 |
+| ⭐ Pro | 100 – 199 |
+| 🏆 Elite | 200+ |
+
+---
+
+## Plan Premium — Pay-me
+
+| Plan | Precio |
+|---|---|
+| Mensual | S/ 19.90/mes |
+| Anual | S/ 202.98/año (-15%) |
+
+Beneficios: IA ilimitada · puntos x1.3 · mayor visibilidad · badge Premium ⭐
+
+Integración de pagos: **[Pay-me / Alignet](https://pay-me.com)** (adquirente directo Perú)
 
 ---
 
 ## Despliegue en Netlify
 
-1. Conectar el repositorio en [netlify.com](https://netlify.com)
+1. Conectar repositorio en [netlify.com](https://netlify.com)
 2. Configurar:
    - **Build command:** `npm run build`
    - **Publish directory:** `dist`
-3. Agregar variables de entorno `VITE_*` en Netlify
-4. Crear el archivo `public/_redirects`:
+3. Agregar variables de entorno `VITE_*`
+4. Crear `public/_redirects`:
    ```
    /* /index.html 200
    ```
-5. Actualizar las URLs en Auth0 con el dominio de Netlify
+5. Actualizar Callback/Logout URLs en Auth0 con dominio de Netlify
+6. Actualizar `VITE_API_URL` con la URL de Render
+
+---
+
+## Colores del Sistema
+
+```css
+--ink: #0f1035;
+--cream: #faf8f3;
+--surface: #f4f1eb;
+--accent: #1E2EB8;   /* Azul Humatchy */
+--accent-2: #E8472A; /* Rojo Humatchy */
+```
 
 ---
 
 ## Licencia
 
-MIT © Humantyx Jobs 2026
+MIT © Humatchy 2026
