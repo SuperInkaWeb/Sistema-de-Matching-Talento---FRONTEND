@@ -52,12 +52,17 @@ export default function Profile() {
 
 
   const fetchProfile = async () => {
-    try {
-      const token = await getAccessTokenSilently()
-      const res = await fetch(`${API_URL}/candidate/me`, { headers: buildHeaders(token) })
-      if (!res.ok) return
+  try {
+    const token = await getAccessTokenSilently()
 
-      const data = await res.json()
+    const [profileRes, cvRes, subRes] = await Promise.allSettled([
+      fetch(`${API_URL}/candidate/me`, { headers: buildHeaders(token) }),
+      fetch(`${API_URL}/file/candidate/my-cv`, { headers: buildHeaders(token) }),
+      fetch(`${API_URL}/subscription/me`, { headers: buildHeaders(token) }),
+    ])
+
+    if (profileRes.status === 'fulfilled' && profileRes.value.ok) {
+      const data = await profileRes.value.json()
       setProfile(data)
       setForm({
         first_name: data.profile?.first_name || '',
@@ -73,29 +78,21 @@ export default function Profile() {
         languages: data.profile?.languages || '',
         address: data.profile?.address || '',
       })
-
-      try {
-        const cvRes = await fetch(`${API_URL}/file/candidate/my-cv`, { headers: buildHeaders(token) })
-        if (cvRes.ok) {
-          const cvData = await cvRes.json()
-          setCvUrl(cvData.signedUrl)
-        }
-      } catch { }
-      try {
-        const subRes = await fetch(`${API_URL}/subscription/me`, {
-          headers: buildHeaders(token)
-        })
-        if (subRes.ok) {
-          const subData = await subRes.json()
-          setIsPremium(subData.isPremium)
-        }
-      } catch { }
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoadingProfile(false)
     }
+    if (cvRes.status === 'fulfilled' && cvRes.value.ok) {
+      const cvData = await cvRes.value.json()
+      setCvUrl(cvData.signedUrl)
+    }
+    if (subRes.status === 'fulfilled' && subRes.value.ok) {
+      const subData = await subRes.value.json()
+      setIsPremium(subData.isPremium)
+    }
+  } catch (err) {
+    console.error(err)
+  } finally {
+    setLoadingProfile(false)
   }
+}
 
   const fetchEducation = async () => {
     try {

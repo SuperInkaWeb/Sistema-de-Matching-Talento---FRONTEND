@@ -5,18 +5,20 @@ import {
 import { useAuth } from '../context/AuthContext'
 import { useAuth0 } from '@auth0/auth0-react'
 import {
-  getVacancies,
   applyToVacancy
 } from '../services/vacancy.service.js'
 import {
   API_URL,
   buildHeaders
 } from '../services/auth.service.js'
-import { getRecommendedVacancies } from '../services/groq.service.js'
 import VacancyCard from '../components/VacancyCard'
 import VacancyModal from '../components/VacancyModal'
 import VacancyRecommendations from '../components/VacancyRecommendations'
 import './Vacancies.css'
+
+let _vacanciesCache = null
+let _cacheTime = null
+const CACHE_TTL = 60000
 
 export default function Vacancies() {
   const { getToken, isAuthenticated, role } = useAuth()
@@ -49,17 +51,24 @@ export default function Vacancies() {
   }, [isAuthenticated, role])
 
   const loadVacancies = async (retries = 2) => {
+    if (_vacanciesCache && _cacheTime && Date.now() - _cacheTime < CACHE_TTL) {
+      setVacancies(_vacanciesCache)
+      setLoading(false)
+      return
+    }
     try {
       setLoading(true)
       const res = await fetch(`${API_URL}/vacancy/all`)
-      if (!res.ok) throw new Error('Error al cargar vacantes')
+      if (!res.ok) throw new Error('Error')
       const data = await res.json()
+      _vacanciesCache = data
+      _cacheTime = Date.now()
       setVacancies(data)
     } catch (err) {
       if (retries > 0) {
-        setTimeout(() => loadVacancies(retries - 1), 1000)
+        setTimeout(() => loadVacancies(retries - 1), 1500)
       } else {
-        console.error('No se pudieron cargar las vacantes:', err.message)
+        setError('No se pudieron cargar las vacantes. Recarga la página.')
       }
     } finally {
       setLoading(false)
@@ -135,6 +144,7 @@ export default function Vacancies() {
       setTimeout(() => setApplySuccess(false), 3000)
     } catch (err) {
       console.error('Error al postular:', err)
+      alert(err.message || 'Error al postular. Intenta de nuevo.')
     } finally {
       setApplying(false)
     }
