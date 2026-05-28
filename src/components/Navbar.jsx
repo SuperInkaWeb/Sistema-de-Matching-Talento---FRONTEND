@@ -71,12 +71,20 @@ export default function Navbar() {
               <button className="navbar__btn navbar__btn--ghost" onClick={logout}>Salir</button>
             </div>
           ) : (
-            <Link to="/login" className="navbar__btn navbar__btn--primary">
-              <span>Ingresar</span>
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </Link>
+            <>
+              <Link to="/registro-empresa" className="navbar__btn navbar__btn--primary">
+                <span>Crear Empresa</span>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+              <Link to="/login" className="navbar__btn navbar__btn--primary">
+                <span>Ingresar</span>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+            </>
           )}
           <button className={`navbar__hamburger ${menuOpen ? 'navbar__hamburger--open' : ''}`}
             onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">

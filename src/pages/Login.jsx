@@ -1,234 +1,33 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { useEffect } from 'react'
 import { useAuth0 } from '@auth0/auth0-react'
-import './Login.css'
+import { useAuth } from '../context/AuthContext'
+import { useNavigate } from 'react-router-dom'
 
 export default function Login() {
-  const { isAuthenticated, loginWithGoogle, loginWithLinkedIn, loginWithMicrosoft } = useAuth()
-  const { loginWithRedirect } = useAuth0()
+  const { loginWithRedirect, isAuthenticated } = useAuth0()
+  const { role } = useAuth()
   const navigate = useNavigate()
-  const [mode, setMode] = useState('login')
-  const [form, setForm] = useState({ email: '', password: '', confirmPassword: '' })
-  const [error, setError] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirm, setShowConfirm] = useState(false)
 
   useEffect(() => {
-    if (isAuthenticated) navigate('/profile')
-  }, [isAuthenticated, navigate])
-
-  const handleEmailSubmit = async (e) => {
-    e.preventDefault()
-    setError(null)
-
-    if (mode === 'register' && form.password !== form.confirmPassword) {
-      setError('Las contraseñas no coinciden')
-      return
+    if (isAuthenticated && role) {
+      if (role === 'company') navigate('/dashboard', { replace: true })
+      else if (role === 'admin') navigate('/admin', { replace: true })
+      else navigate('/profile', { replace: true })
     }
-    if (form.password.length < 8) {
-      setError('La contraseña debe tener al menos 8 caracteres')
-      return
-    }
+  }, [isAuthenticated, role])
 
-    setLoading(true)
-    try {
-      await loginWithRedirect({
-        authorizationParams: {
-          connection: 'Username-Password-Authentication',
-          login_hint: form.email,
-          screen_hint: mode === 'register' ? 'signup' : undefined,
-        }
+  useEffect(() => {
+    if (!isAuthenticated) {
+      loginWithRedirect({
+        authorizationParams: { prompt: 'login' },
+        appState: { returnTo: window.location.pathname }
       })
-    } catch {
-      setError('Error al procesar. Intenta de nuevo.')
-      setLoading(false)
     }
-  }
+  }, [])
 
   return (
-    <main className="login-page">
-      <div className="login-page__bg">
-        <div className="login-page__blob login-page__blob--1" />
-        <div className="login-page__blob login-page__blob--2" />
-        <div className="login-page__grid" />
-      </div>
-
-      <div className="login-card">
-        <div className="login-card__header">
-          <div className="login-card__wordmark">
-            <img src="/logo.png" alt="Humatchy" className="acerca-logo" />
-          </div>
-          <p className="login-card__subtitle">Conecta con las mejores oportunidades.</p>
-        </div>
-
-        {/* Tabs */}
-        <div className="login-tabs">
-          <button
-            className={`login-tab ${mode === 'login' ? 'login-tab--active' : ''}`}
-            onClick={() => {
-              setMode('login')
-              setError(null)
-              setForm({ email: '', password: '', confirmPassword: '' }) // ← agrega
-            }}
-          >
-            Iniciar sesión
-          </button>
-          <button
-            className={`login-tab ${mode === 'register' ? 'login-tab--active' : ''}`}
-            onClick={() => {
-              setMode('register')
-              setError(null)
-              setForm({ email: '', password: '', confirmPassword: '' }) // ← agrega
-            }}
-          >
-            Registrarse
-          </button>
-        </div>
-        {/* Form email/contraseña */}
-        <form className="login-form" onSubmit={handleEmailSubmit}>
-          <div className="form-field">
-            <label className="form-label">Correo electrónico</label>
-            <input className="form-input" type="email" required
-              placeholder="tu@correo.com"
-              value={form.email}
-              onChange={e => setForm(p => ({ ...p, email: e.target.value }))} />
-          </div>
-          <div className="form-field">
-            <label className="form-label">Contraseña</label>
-            <div className="login-password-wrapper">
-              <input
-                className="form-input login-password-input"
-                type={showPassword ? 'text' : 'password'}
-                required
-                placeholder="Mínimo 8 caracteres"
-                value={form.password}
-                onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
-              />
-              <button
-                type="button"
-                className="login-password-toggle"
-                onClick={() => setShowPassword(p => !p)}
-                tabIndex={-1}
-              >
-                {showPassword ? (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
-                    <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
-                    <line x1="1" y1="1" x2="23" y2="23" />
-                  </svg>
-                ) : (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
-                )}
-              </button>
-            </div>
-          </div>
-          {mode === 'register' && (
-            <div className="form-field">
-              <label className="form-label">Confirmar contraseña</label>
-              <div className="login-password-wrapper">
-                <input
-                  className="form-input login-password-input"
-                  type={showConfirm ? 'text' : 'password'}
-                  required
-                  placeholder="Repite tu contraseña"
-                  value={form.confirmPassword}
-                  onChange={e => setForm(p => ({ ...p, confirmPassword: e.target.value }))}
-                />
-                <button
-                  type="button"
-                  className="login-password-toggle"
-                  onClick={() => setShowConfirm(p => !p)}
-                  tabIndex={-1}
-                >
-                  {showConfirm ? (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
-                      <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
-                      <line x1="1" y1="1" x2="23" y2="23" />
-                    </svg>
-                  ) : (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  )}
-                </button>
-              </div>
-            </div>
-          )}
-          {error && (
-            <div className="form-error">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
-                <path d="M8 4.5v4M8 10.5v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-              </svg>
-              {error}
-            </div>
-          )}
-          <button type="submit" className="login-btn-primary" disabled={loading}>
-            {loading ? 'Procesando...' : mode === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}
-          </button>
-        </form>
-
-        {/* Divider */}
-        <div className="login-divider"><span>o continúa con</span></div>
-
-        {/* Social */}
-        <div className="login-card__providers">
-          <button className="login-provider login-provider--google" onClick={loginWithGoogle}>
-            <svg className="login-provider__icon" viewBox="0 0 24 24">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05" />
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-            </svg>
-            Google
-          </button>
-
-          <button className="login-provider login-provider--linkedin" onClick={loginWithLinkedIn}>
-            <svg className="login-provider__icon" viewBox="0 0 24 24" fill="white">
-              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-            </svg>
-            LinkedIn
-          </button>
-
-          <button className="login-provider login-provider--microsoft" onClick={loginWithMicrosoft}>
-            <svg className="login-provider__icon" viewBox="0 0 24 24">
-              <path fill="#f25022" d="M1 1h10v10H1z" />
-              <path fill="#00a4ef" d="M13 1h10v10H13z" />
-              <path fill="#7fba00" d="M1 13h10v10H1z" />
-              <path fill="#ffb900" d="M13 13h10v10H13z" />
-            </svg>
-            Microsoft
-          </button>
-        </div>
-
-        {/* Links empresa */}
-        <div className="login-links">
-          <p className="login-empresa-link">
-            ¿Quieres registrar tu empresa?{' '}
-            <button className="login-empresa-link__btn" onClick={() => navigate('/registro-empresa')}>
-              Crear cuenta empresa
-            </button>
-          </p>
-        </div>
-
-        <p className="login-card__footer">
-          Al ingresar, aceptas nuestros{' '}
-          <a href="/terminos">Términos de uso</a> y{' '}
-          <a href="/privacidad">Política de privacidad</a>.
-        </p>
-      </div>
-
-      <div className="login-badge">
-        <span className="login-badge__dot" />
-        +2,400 vacantes activas
-      </div>
-    </main>
+    <div className="route-loading">
+      <div className="route-loading__spinner" />
+    </div>
   )
 }
