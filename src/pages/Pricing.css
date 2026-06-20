@@ -325,3 +325,10 @@
   .pricing-cards { grid-template-columns: 1fr; }
   .pricing-faq__grid { grid-template-columns: 1fr; }
 }
+
+.pricing-card__secure-note {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 12px;
+}

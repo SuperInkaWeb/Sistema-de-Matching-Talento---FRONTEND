@@ -13,6 +13,7 @@ import Privacidad from './pages/Privacidad'
 import FAQ from './pages/FAQ'
 import Acerca from './pages/Acerca'
 import Pricing from './pages/Pricing'
+import PremiumResult from './pages/PremiumResult'
 
 export default function AppRoutes() {
   return (
@@ -51,6 +52,15 @@ export default function AppRoutes() {
       } />
       <Route path="/premium" element={
         <Pricing />
+      } />
+      <Route path="/premium/success" element={
+        <PremiumResult status="success" />
+      } />
+      <Route path="/premium/failure" element={
+        <PremiumResult status="failure" />
+      } />
+      <Route path="/premium/pending" element={
+        <PremiumResult status="pending" />
       } />
     </Routes>
   )

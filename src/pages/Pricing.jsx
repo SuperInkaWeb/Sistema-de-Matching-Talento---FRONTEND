@@ -15,36 +15,29 @@ export default function Pricing() {
   const { role } = useAuth()
   const [billing, setBilling] = useState('monthly')
   const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [showPago, setShowPago] = useState(false)
-  const [cardForm, setCardForm] = useState({ number: '', name: '', expiry: '', cvv: '' })
   const [payError, setPayError] = useState(null)
 
-  const handleActivate = async () => {
+  const handleActivatePremium = async () => {
     if (!isAuthenticated) {
       navigate('/login')
       return
     }
-    setShowPago(true)
-  }
-
-  const handlePayment = async () => {
     setLoading(true)
+    setPayError(null)
     try {
       const token = await getAccessTokenSilently()
-      const res = await fetch(`${API_URL}/subscription/activate`, {
+      const res = await fetch(`${API_URL}/subscription/checkout`, {
         method: 'POST',
         headers: { ...buildHeaders(token), 'Content-Type': 'application/json' },
         body: JSON.stringify({ billingCycle: billing }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
-      setSuccess(true)
-      setShowPago(false)
-      setTimeout(() => navigate(role === 'company' ? '/dashboard' : '/profile'), 2000)
+      if (!res.ok) throw new Error(data.error || 'Error al iniciar el pago')
+
+      // Redirige a Mercado Pago Checkout
+      window.location.href = data.checkoutUrl
     } catch (err) {
-      console.error(err)
-    } finally {
+      setPayError(err.message)
       setLoading(false)
     }
   }
@@ -79,10 +72,10 @@ export default function Pricing() {
           </div>
         </div>
 
-        {success && (
-          <div className="pricing-success">
-            🎉 ¡Plan Premium activado! Redirigiendo...
-          </div>
+        {payError && (
+          <p className="form-error" style={{ textAlign: 'center', marginTop: 12, marginBottom: 12 }}>
+            ✗ {payError}
+          </p>
         )}
 
         <div className="pricing-cards">
@@ -143,11 +136,14 @@ export default function Pricing() {
             </ul>
             <button
               className="pricing-card__btn pricing-card__btn--primary"
-              onClick={handleActivate}
+              onClick={handleActivatePremium}
               disabled={loading}
             >
-              {loading ? 'Procesando...' : `Activar Premium ${billing === 'annual' ? 'Anual' : 'Mensual'}`}
+              {loading ? 'Redirigiendo...' : `Activar Premium ${billing === 'annual' ? 'Anual' : 'Mensual'}`}
             </button>
+            <p className="pricing-card__secure-note">
+              🔒 Pago procesado de forma segura por <strong>Mercado Pago</strong>
+            </p>
           </div>
         </div>
 
@@ -203,106 +199,6 @@ export default function Pricing() {
           </div>
         </div>
       </div>
-
-      {/* Pago modal */}
-      {showPago && (
-        <div className="modal-overlay" onClick={() => setShowPago(false)}>
-          <div className="modal pricing-pago-modal" onClick={e => e.stopPropagation()}>
-            <div className="modal__header">
-              <h2 className="modal__title">💳 Pago seguro con Pay-me</h2>
-              <button className="modal__close" onClick={() => setShowPago(false)}>✕</button>
-            </div>
-
-            <div className="pricing-pago__plan">
-              <p>Plan: <strong>Premium {billing === 'annual' ? 'Anual' : 'Mensual'}</strong></p>
-              <p className="pricing-pago__price">
-                S/ {billing === 'monthly' ? MONTHLY_PRICE.toFixed(2) : ANNUAL_PRICE.toFixed(2)}
-                {billing === 'annual' ? '/año' : '/mes'}
-              </p>
-            </div>
-
-            <form className="pricing-pago__form" onSubmit={async (e) => {
-              e.preventDefault()
-              setLoading(true)
-              setPayError(null)
-              try {
-                const token = await getAccessTokenSilently()
-                const res = await fetch(`${API_URL}/subscription/activate`, {
-                  method: 'POST',
-                  headers: { ...buildHeaders(token), 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    billingCycle: billing,
-                    cardNumber: cardForm.number,
-                    expiry: cardForm.expiry,
-                    cvv: cardForm.cvv,
-                    cardName: cardForm.name,
-                  }),
-                })
-                const data = await res.json()
-                if (!res.ok) throw new Error(data.error || 'Error en el pago')
-                setSuccess(true)
-                setShowPago(false)
-                setTimeout(() => navigate(role === 'company' ? '/dashboard' : '/profile'), 2000)
-              } catch (err) {
-                setPayError(err.message)
-              } finally {
-                setLoading(false)
-              }
-            }}>
-              <div className="form-field">
-                <label className="form-label">Número de tarjeta</label>
-                <input className="form-input" required maxLength={19}
-                  placeholder="4111 1111 1111 1111"
-                  value={cardForm.number}
-                  onChange={e => {
-                    const val = e.target.value.replace(/\D/g, '').slice(0, 16)
-                    const formatted = val.match(/.{1,4}/g)?.join(' ') || val
-                    setCardForm(p => ({ ...p, number: formatted }))
-                  }} />
-              </div>
-              <div className="form-field">
-                <label className="form-label">Nombre en la tarjeta</label>
-                <input className="form-input" required
-                  placeholder="PEDRO MIRANDA"
-                  value={cardForm.name}
-                  onChange={e => setCardForm(p => ({ ...p, name: e.target.value.toUpperCase() }))} />
-              </div>
-              <div className="form-grid">
-                <div className="form-field">
-                  <label className="form-label">Vencimiento</label>
-                  <input className="form-input" required maxLength={5}
-                    placeholder="MM/AA"
-                    value={cardForm.expiry}
-                    onChange={e => {
-                      const val = e.target.value.replace(/\D/g, '').slice(0, 4)
-                      const formatted = val.length > 2 ? `${val.slice(0, 2)}/${val.slice(2)}` : val
-                      setCardForm(p => ({ ...p, expiry: formatted }))
-                    }} />
-                </div>
-                <div className="form-field">
-                  <label className="form-label">CVV</label>
-                  <input className="form-input" required maxLength={4}
-                    placeholder="123" type="password"
-                    value={cardForm.cvv}
-                    onChange={e => setCardForm(p => ({ ...p, cvv: e.target.value.replace(/\D/g, '').slice(0, 4) }))} />
-                </div>
-              </div>
-
-              {payError && (
-                <div className="form-error">✗ {payError}</div>
-              )}
-
-              <div className="pricing-pago__secure">
-                🔒 Pago procesado de forma segura por <strong>Pay-me / Alignet</strong>
-              </div>
-
-              <button type="submit" className="form-save-btn" disabled={loading}>
-                {loading ? 'Procesando...' : `Pagar S/ ${billing === 'monthly' ? MONTHLY_PRICE.toFixed(2) : ANNUAL_PRICE.toFixed(2)}`}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
     </main>
   )
 }
