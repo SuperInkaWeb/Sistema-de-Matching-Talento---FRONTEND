@@ -113,7 +113,8 @@ src/
 │   ├── Login.jsx             # Login email/OAuth
 │   ├── RegisterEmpresa.jsx   # Registro empresa pública
 │   ├── Registro.jsx          # Aceptar invitación
-│   ├── Pricing.jsx           # Planes Premium (Pay-me)
+│   ├── Pricing.jsx           # Planes Premium (Mercado Pago)
+│   ├── PremiumResult.jsx     # Resultado del pago (success/failure/pending)
 │   ├── Terminos.jsx
 │   ├── Privacidad.jsx
 │   ├── FAQ.jsx
@@ -147,6 +148,9 @@ src/
 | `/dashboard` | Dashboard | company |
 | `/admin` | AdminDashboard | admin |
 | `/premium` | Pricing | Autenticado |
+| `/premium/success` | PremiumResult | Público |
+| `/premium/failure` | PremiumResult | Público |
+| `/premium/pending` | PremiumResult | Público |
 | `/terminos` | Terminos | Público |
 | `/privacidad` | Privacidad | Público |
 | `/faq` | FAQ | Público |
@@ -220,7 +224,7 @@ src/
 
 ---
 
-## Plan Premium — Pay-me
+## Plan Premium — Mercado Pago
 
 | Plan | Precio |
 |---|---|
@@ -229,7 +233,7 @@ src/
 
 Beneficios: IA ilimitada · puntos x1.3 · mayor visibilidad · badge Premium ⭐
 
-Integración de pagos: **[Pay-me / Alignet](https://pay-me.com)** (adquirente directo Perú)
+Integración de pagos: **[Mercado Pago](https://www.mercadopago.com.pe/developers)** vía Checkout Pro — el usuario es redirigido a una pasarela externa y regresa a `/premium/success`, `/premium/failure` o `/premium/pending` según el resultado.
 
 ---
 
@@ -263,4 +267,4 @@ Integración de pagos: **[Pay-me / Alignet](https://pay-me.com)** (adquirente di
 
 ## Licencia
 
-MIT © Humatchy 2026
+MIT © Qoribex 2026
